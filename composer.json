@@ -5,7 +5,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Quan\\": "src/"
+            "Itscaro\\": "src/"
         }
     },
     "bin": ["bin/run.php"],
@@ -13,6 +13,14 @@
         {
             "type": "vcs",
             "url": "https://github.com/itscaro/phpflickr"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/itscaro/zf2-restful"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/zendframework/zendoauth"
         }
     ],
     "require": {
@@ -22,7 +30,9 @@
         "Symfony/Process": "*",
         "Symfony/Yaml": "*",
         "Symfony/Config": "*",
-	"itscaro/phpflickr": "dev-master"
+        "itscaro/zf2-restful": "dev-master",
+        "itscaro/phpflickr": "dev-master",
+        "dopiaza/dpzflickr": "dev-master"
     },
     "require-dev": {
         "kherge/box": "*"
