@@ -86,20 +86,29 @@ EOT
             $flickrSimple = new \Itscaro\Service\Flickr\Client('https://api.flickr.com/services/rest', $configOauth, $configHttpClient);
             $flickrSimple->setAccessToken($settings['accessToken']);
 
-            $result = $flickrSimple->get('flickr.photosets.getList', array(
-                'user_id' => "10995091@N00"
-            ));
-            var_dump($result);
+//            $result = $flickrSimple->get('flickr.photosets.getList', array(
+//                'user_id' => "10995091@N00"
+//            ));
+//            var_dump($result);
+//
+//            $flickrMulti->addToQueue('GET', 'flickr.photosets.getList', array(
+//                'user_id' => "10995091@N00"
+//            ));
+//            $result = $flickrMulti->dispatchMulti();
+//            var_dump($result);
+//
+//            $flickr->photosetGetList("10995091@N00");
+//            $result = $flickr->dispatch();
+//            var_dump($result);
 
-            $flickrMulti->addToQueue('GET', 'flickr.photosets.getList', array(
-                'user_id' => "10995091@N00"
-            ));
-            $result = $flickrMulti->dispatchMulti();
-            var_dump($result);
+            $flickrUploader = new \Itscaro\Service\Flickr\Photo($settings['accessToken'], $configOauth, $configHttpClient);
+            $file = ROOTDIR . '/data/useravatar.png';
 
-            $flickr->photosetGetList("10995091@N00");
-            $result = $flickr->dispatch();
-            var_dump($result);
+            $id = $flickrUploader->uploadSync($file);
+            echo $file . " - " . $id . "\n";
+
+            $id = $flickrUploader->uploadAsync($file);
+            echo $file . " - " . $id . "\n";
 
 //            $params = $this->_prepareParamsForProcess('by-taken-year', $settings['accessToken']->getParam('user_nsid'), 1);
 //            $response = $flickrMulti->dispatch('GET', 'flickr.photosets.getPhotos', $params);
@@ -110,52 +119,17 @@ EOT
         echo "\n\nDone\n";
     }
 
-    protected function _prepareParamsForProcess($type, $userId, $page, $photoSetId = null)
+    protected function _scan($dir)
     {
-        switch ($type) {
-            case 'by-taken-year':
-                $year = 2014;
-                $params = array(
-                    'user_id' => $userId,
-                    'per_page' => 500,
-                    'page' => $page,
-                    'min_taken_date' => mktime(0, 0, 0, 1, 1, $year),
-                    'max_taken_date' => mktime(0, 0, 0, 1, 1, $year + 1),
-                    'media' => 'photo',
-                    'extras' => 'date_upload, date_taken, owner_name, icon_server, original_format, last_update, geo, tags, machine_tags, o_dims, views, media, path_alias, url_sq, url_t, url_s, url_q, url_m, url_n, url_z, url_c, url_l, url_o'
-                );
-                break;
+        $finder = new \Symfony\Component\Finder\Finder();
+        $finder->in($dir)
+            ->name('\.(jpg|jpeg|png|gif|tif|tiff)$');
 
-            case 'by-tags':
-                $tags = array(
-                );
-                $params = array(
-                    'user_id' => $userId,
-                    'per_page' => 500,
-                    'page' => $page,
-                    'tags' => implode(',', $tags),
-                    'media' => 'photo',
-                    'extras' => 'date_upload, date_taken, owner_name, icon_server, original_format, last_update, geo, tags, machine_tags, o_dims, views, media, path_alias, url_sq, url_t, url_s, url_q, url_m, url_n, url_z, url_c, url_l, url_o'
-                );
-                break;
-
-            case 'by-set':
-                $params = array(
-                    'user_id' => $userId,
-                    'photoset_id' => $photoSetId,
-                    'per_page' => 500,
-                    'page' => $page,
-                    'media' => 'photo',
-                    'extras' => 'date_upload, date_taken, owner_name, icon_server, original_format, last_update, geo, tags, machine_tags, o_dims, views, media, path_alias, url_sq, url_t, url_s, url_q, url_m, url_n, url_z, url_c, url_l, url_o'
-                );
-                break;
-
-            default:
-                $params = array();
-                break;
+        foreach ($finder as $file) {
+            /* @var $file \Symfony\Component\Finder\SplFileInfo */
+            $file->getBasename();
+            
         }
-
-        return $params;
     }
 
     protected function _getDataStore()
