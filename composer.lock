@@ -4,8 +4,43 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "62fcf00a147e575fe40a90ca865de4d4",
+    "hash": "f6e06b43bed51f01c24b5f5930cb404f",
     "packages": [
+        {
+            "name": "dopiaza/dpzflickr",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dopiaza/DPZFlickr.git",
+                "reference": "af68e1d23b66d67953514fcd1fcf8656f3450d80"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dopiaza/DPZFlickr/zipball/af68e1d23b66d67953514fcd1fcf8656f3450d80",
+                "reference": "af68e1d23b66d67953514fcd1fcf8656f3450d80",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "0",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "DPZ": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "David Wilkinson",
+                    "homepage": "http://dopiaza.org",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP client library for Flickr.",
+            "time": "2014-10-24 11:04:13"
+        },
         {
             "name": "itscaro/phpflickr",
             "version": "dev-master",
@@ -37,12 +72,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/itscaro/zf2-restful.git",
-                "reference": "ab3a40b65ed964be77bd2e17022bb5577126da9a"
+                "reference": "598a104f3875b494a4d4332a5c7ef7f09c7de959"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itscaro/zf2-restful/zipball/ab3a40b65ed964be77bd2e17022bb5577126da9a",
-                "reference": "ab3a40b65ed964be77bd2e17022bb5577126da9a",
+                "url": "https://api.github.com/repos/itscaro/zf2-restful/zipball/598a104f3875b494a4d4332a5c7ef7f09c7de959",
+                "reference": "598a104f3875b494a4d4332a5c7ef7f09c7de959",
                 "shasum": ""
             },
             "require": {
@@ -70,7 +105,7 @@
                 "source": "https://github.com/itscaro/zf2-restful/tree/master",
                 "issues": "https://github.com/itscaro/zf2-restful/issues"
             },
-            "time": "2014-11-06 10:43:18"
+            "time": "2014-11-06 17:33:01"
         },
         {
             "name": "symfony/config",
@@ -1805,7 +1840,8 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "itscaro/zf2-restful": 20,
-        "itscaro/phpflickr": 20
+        "itscaro/phpflickr": 20,
+        "dopiaza/dpzflickr": 20
     },
     "prefer-stable": false,
     "platform": [],

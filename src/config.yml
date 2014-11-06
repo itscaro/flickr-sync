@@ -5,6 +5,11 @@ app:
 finder:
     in: "test"
 
+flickr:
+    oauth:
+        consumerKey: ef41e52674a4572bd9c05c1df0a3c9a4
+        consumerSecret: 077c25b4411d432c
+
 monolog:
     handlers:
         console:
