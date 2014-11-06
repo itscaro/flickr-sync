@@ -1,0 +1,11 @@
+app:
+    name: "Flickr Sync"
+    version: "2014-09-17"
+
+finder:
+    in: "test"
+
+monolog:
+    handlers:
+        console:
+            type: console
