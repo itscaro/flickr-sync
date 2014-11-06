@@ -1,0 +1,30 @@
+{
+    "config": {
+        "autoloader-suffix": "IJENKO",
+        "optimize-autoloader": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Quan\\": "src/"
+        }
+    },
+    "bin": ["bin/run.php"],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/itscaro/phpflickr"
+        }
+    ],
+    "require": {
+        "Symfony/Console": "*",
+        "Symfony/Finder": "*",
+        "Symfony/Filesystem": "*",
+        "Symfony/Process": "*",
+        "Symfony/Yaml": "*",
+        "Symfony/Config": "*",
+	"itscaro/phpflickr": "dev-master"
+    },
+    "require-dev": {
+        "kherge/box": "*"
+    }
+}
