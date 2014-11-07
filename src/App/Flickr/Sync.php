@@ -215,9 +215,16 @@ EOT
 //        $result = $flickrMulti->dispatch('GET', 'flickr.photosets.getList', array(
 //            'user_id' => $this->_accessToken->getParam('user_nsid')
 //        ));
-        $result = $this->_flickrClient->get('flickr.photosets.getList', array(
+
+        $params = array(
             'user_id' => $this->_accessToken->getParam('user_nsid')
-        ));
+        );
+        $result = $this->_flickrClient->get('flickr.photosets.getList', $params);
+
+        if ($this->_output->isDebug()) {
+            $this->_output->writeln(var_export($params, true));
+            $this->_output->writeln(var_export($result, true));
+        }
 
         if($result['stat'] == 'ok') {
             foreach($result['photosets']['photoset'] as $_photoset) {
@@ -240,10 +247,16 @@ EOT
             $this->_createSyncSet($photoId);
         }
 
-        $result = $this->_flickrClient->post('flickr.photosets.addPhoto', array(
+        $params = array(
             'photoset_id' => $this->_photosetId,
             'photo_id' => $photoId
-        ));
+        );
+        $result = $this->_flickrClient->post('flickr.photosets.addPhoto', $params);
+
+        if ($this->_output->isDebug()) {
+            $this->_output->writeln(var_export($params, true));
+            $this->_output->writeln(var_export($result, true));
+        }
 
 //        $flickrMulti->dispatch('POST', 'flickr.photosets.addPhoto', array(
 //            'photoset_id' => $this->_photosetId,
@@ -263,11 +276,17 @@ EOT
 //            'primary_photo_id' => $photoId
 //        ));
 
-        $result = $this->_flickrClient->post('flickr.photosets.create', array(
+        $params = array(
             'title' => 'Flickr-Sync',
             'description' => 'All of the photos that are synced with Flickr-Sync are put in this Photo Set',
             'primary_photo_id' => $photoId
-        ));
+        );
+        $result = $this->_flickrClient->post('flickr.photosets.create', $params);
+
+        if ($this->_output->isDebug()) {
+            $this->_output->writeln(var_export($params, true));
+            $this->_output->writeln(var_export($result, true));
+        }
 
         if ($result['stat'] == 'ok') {
             return $result['photoset']['id'];
