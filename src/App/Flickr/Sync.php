@@ -237,31 +237,46 @@ EOT
         return null;
     }
 
-    protected function _addToSyncSet($photoId)
+    protected function _addToSyncSet(array $photoIds)
     {
-        if ($this->_photosetId === null) {
-            $this->_photosetId = $this->_getSyncSetId();
+        $_photosetNewlyCreated = false;
+
+        foreach($photoIds as $photoId) {
+            // Try to get the photoset using to stock synced photos
+            if ($this->_photosetId === null) {
+                $this->_photosetId = $this->_getSyncSetId();
+            }
+
+            // Try to create the photoset using to stock synced photos
+            if ($this->_photosetId === null) {
+                try {
+                    $this->_photosetId = $this->_createSyncSet($photoId);
+
+                    $_photosetNewlyCreated = true;
+                } catch(\Exception $e) {
+                    $this->_output->writeln("<error>Cannot create photoset: " . $e->getMessage() . "</error>");
+                }
+            }
+
+            // Try to add the photo to photoset
+            if ($this->_photosetId !== null && $_photosetNewlyCreated === false) {
+                $params = array(
+                    'photoset_id' => $this->_photosetId,
+                    'photo_id' => $photoId
+                );
+                $result = $this->_flickrClient->post('flickr.photosets.addPhoto', $params);
+
+                if ($this->_output->isDebug()) {
+                    $this->_output->writeln(var_export($params, true));
+                    $this->_output->writeln(var_export($result, true));
+                }
+            }
+
+    //        $flickrMulti->dispatch('POST', 'flickr.photosets.addPhoto', array(
+    //            'photoset_id' => $this->_photosetId,
+    //            'photo_id' => $photoId
+    //        ));
         }
-
-        if ($this->_photosetId === null) {
-            $this->_createSyncSet($photoId);
-        }
-
-        $params = array(
-            'photoset_id' => $this->_photosetId,
-            'photo_id' => $photoId
-        );
-        $result = $this->_flickrClient->post('flickr.photosets.addPhoto', $params);
-
-        if ($this->_output->isDebug()) {
-            $this->_output->writeln(var_export($params, true));
-            $this->_output->writeln(var_export($result, true));
-        }
-
-//        $flickrMulti->dispatch('POST', 'flickr.photosets.addPhoto', array(
-//            'photoset_id' => $this->_photosetId,
-//            'photo_id' => $photoId
-//        ));
     }
 
     protected function _createSyncSet($photoId)
@@ -290,9 +305,9 @@ EOT
 
         if ($result['stat'] == 'ok') {
             return $result['photoset']['id'];
+        } else {
+            throw new Exception($result['message'], $result['code']);
         }
-
-        return null;
     }
 
     protected function _scan($dir)
@@ -310,6 +325,7 @@ EOT
 
     protected function _process(array $files)
     {
+        $uploadedPhotoIds = array();
         $errors = array();
         $filesInfo = array();
         foreach ($files as $file) {
@@ -345,9 +361,7 @@ EOT
                     $tag = "itscaro:app=flickr-sync itscaro:photo_hash=" . $filesInfo[$filePath]['hash'];
 
                     if ($this->_input->getOption('dry-run') === false) {
-                        $id = $this->_flickrUploader->uploadSync($filePath, $file->getBasename(), $file->getPath(), $tag);
-
-                        $this->_addToSyncSet($id);
+                        $uploadedPhotoIds[] = $this->_flickrUploader->uploadSync($filePath, $file->getBasename(), $file->getPath(), $tag);
 
                         if ($this->_output->isVerbose()) {
                             $this->_output->writeln("<comment>File uploaded: {$filePath} (Photo ID: {$id})</comment>");
@@ -366,6 +380,8 @@ EOT
                 $this->_output->writeln("<error>Could not verify {$filePath}</error>");
             }
         }
+
+        $this->_addToSyncSet($uploadedPhotoIds);
 
         return $errors;
     }
