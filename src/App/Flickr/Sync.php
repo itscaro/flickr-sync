@@ -7,8 +7,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOException;
 
 class Sync extends Command {
 
@@ -50,7 +48,7 @@ EOT
         /* @var $app \Itscaro\App\Application */
         $config = $app->getConfig();
 
-        $settings = $this->_getDataStore();
+        $settings = $app->getDataStore('store');
 
         $configOauth = array(
             'siteUrl' => 'https://www.flickr.com/services/oauth/',
@@ -96,7 +94,7 @@ EOT
 
             $accessToken = $consumer->getAccessToken($queryData, $requestToken);
 
-            $this->_setDataStore(array(
+            $app->setDataStore('store', array(
                 'accessToken' => $accessToken
             ));
         } else {
@@ -231,49 +229,8 @@ EOT
                 $this->_output->writeln("<error>Could not verify {$filePath}</error>");
             }
         }
-echo "test";
+
         return $errors;
-    }
-
-    protected function _getDataStore()
-    {
-
-        //Define your file path based on the cache one
-        $filename = ROOTDIR . '/data/store';
-
-        //Create your own folder in the cache directory
-        $fs = new Filesystem();
-        try {
-            $fs->mkdir(dirname($filename));
-        } catch (IOException $e) {
-            echo "An error occured while creating your directory";
-        }
-
-        if ($fs->exists($filename)) {
-            return unserialize(file_get_contents($filename));
-        } else {
-            return array();
-        }
-    }
-
-    protected function _setDataStore(array $data)
-    {
-        //Define your file path based on the cache one
-        $filename = ROOTDIR . '/data/store';
-
-        //Create your own folder in the cache directory
-        $fs = new Filesystem();
-        try {
-            $fs->mkdir(dirname($filename));
-        } catch (IOException $e) {
-            echo "An error occured while creating your directory";
-        }
-
-        if (!$fs->exists($filename)) {
-            $fs->touch($filename);
-        }
-
-        return file_put_contents($filename, serialize($data));
     }
 
 }
