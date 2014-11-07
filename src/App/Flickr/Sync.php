@@ -35,8 +35,10 @@ class Sync extends Command {
                 ->setDefinition(array())
                 ->setHelp(<<<EOT
 EOT
-                )->addOption('dry-run', 'd', \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL, 'Dry run, do not upload to Flickr', false)
-                ->addArgument('directory', InputArgument::OPTIONAL, 'Directory to scan', getcwd());
+                )
+            ->addOption('progess', 'p', \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL, 'Show progess bar', true)
+            ->addOption('dry-run', 'd', \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL, 'Dry run, do not upload to Flickr', false)
+            ->addArgument('directory', InputArgument::OPTIONAL, 'Directory to scan', getcwd());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -135,10 +137,18 @@ EOT
             $counter = 0;
 
             if ($filesFound > 0) {
-                $progressBar = $this->getHelper('progress');
-                $progressBar->start($this->_output, $filesFound);
+                if ($this->_input->getOption('progess')) {
+                    $progressBar = $this->getHelper('progress');
+                }
+                
+                if (isset($progressBar)) {
+                    $progressBar->start($this->_output, $filesFound);
+                }
+
                 foreach ($finder as $file) {
-                    $progressBar->advance();
+                    if (isset($progressBar)) {
+                        $progressBar->advance();
+                    }
                     $counter++;
                     /* @var $file \Symfony\Component\Finder\SplFileInfo */
 
@@ -150,7 +160,11 @@ EOT
                         $filesBatch = array();
                     }
                 }
-                $progressBar->finish();
+
+                if (isset($progressBar)) {
+                    $progressBar->finish();
+                }
+
                 $this->_output->writeln('');
             }
 
@@ -216,13 +230,17 @@ EOT
 
                     if ($this->_input->getOption('dry-run') === false) {
                         $id = $flickrUploader->uploadAsync($filePath, $file->getBasename(), $file->getPath(), $tag);
-                        $this->_output->writeln("<comment>File uploaded: {$filePath} (Photo ID: {$id})</comment>");
+                        if ($this->_output->isVerbose()) {
+                            $this->_output->writeln("<comment>File uploaded: {$filePath} (Photo ID: {$id})</comment>");
+                        }
                     } else {
 
                     }
                 } else {
                     // File exists on Flickr
-                    $this->_output->writeln("File exists already: {$filePath}");
+                    if ($this->_output->isVeryVerbose()) {
+                        $this->_output->writeln("File exists already: {$filePath}");
+                    }
                 }
             } else {
                 $errors[] = $file;
