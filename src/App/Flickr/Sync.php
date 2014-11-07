@@ -58,7 +58,18 @@ class Sync extends Command {
      * @var Photo
      */
     protected $_flickrUploader;
+    
+    /**
+     *
+     * @var  
+     */
+    protected $_photosetId;
 
+    /**
+     *
+     * @var \Monolog\Logger
+     */
+    private $_logger;
 
     protected function configure()
     {
@@ -81,7 +92,10 @@ EOT
         $app = $this->getApplication();
         /* @var $app Application */
         $config = $app->getConfig();
-
+        $this->_logger = $app->getLogger();
+        
+        $this->_logger->info('Application started');
+        
         $settings = $app->getDataStore('store');
 
         $configOauth = array(
@@ -177,9 +191,6 @@ EOT
                 }
 
                 foreach ($finder as $file) {
-                    if (isset($progressBar)) {
-                        $progressBar->advance();
-                    }
                     $counter++;
                     /* @var $file SplFileInfo */
 
@@ -189,6 +200,10 @@ EOT
 
                         $errors += $this->_process($filesBatch);
                         $filesBatch = array();
+                    }
+                    
+                    if (isset($progressBar)) {
+                        $progressBar->setCurrent($counter);
                     }
                 }
 
@@ -210,7 +225,7 @@ EOT
         $output->writeln('<info>Done</info>');
     }
 
-    protected function _getSyncSetId()
+    protected function _getSyncSetId($photosetName)
     {
 //        $result = $flickrMulti->dispatch('GET', 'flickr.photosets.getList', array(
 //            'user_id' => $this->_accessToken->getParam('user_nsid')
@@ -221,6 +236,7 @@ EOT
         );
         $result = $this->_flickrClient->get('flickr.photosets.getList', $params);
 
+        $this->_logger->debug('>>> flickr.photos.getList', array('params' => $params, 'result' => $result));
         if ($this->_output->isDebug()) {
             $this->_output->writeln(var_export($params, true));
             $this->_output->writeln(var_export($result, true));
@@ -228,7 +244,7 @@ EOT
 
         if($result['stat'] == 'ok') {
             foreach($result['photosets']['photoset'] as $_photoset) {
-                if ($_photoset['title']['_content'] == "Flickr-Sync") {
+                if ($_photoset['title']['_content'] == $photosetName) {
                     return $_photoset['title']['id'];
                 }
             }
@@ -239,18 +255,18 @@ EOT
 
     protected function _addToSyncSet(array $photoIds)
     {
-        $_photosetNewlyCreated = false;
+        foreach($photoIds as $photoId => $photoInfo) {
+            $_photosetNewlyCreated = false;
 
-        foreach($photoIds as $photoId) {
             // Try to get the photoset using to stock synced photos
             if ($this->_photosetId === null) {
-                $this->_photosetId = $this->_getSyncSetId();
+                $this->_photosetId = $this->_getSyncSetId("Flickr-Sync");
             }
 
             // Try to create the photoset using to stock synced photos
             if ($this->_photosetId === null) {
                 try {
-                    $this->_photosetId = $this->_createSyncSet($photoId);
+                    $this->_photosetId = $this->_createSyncSet("Flickr-Sync", $photoId);
 
                     $_photosetNewlyCreated = true;
                 } catch(\Exception $e) {
@@ -260,12 +276,18 @@ EOT
 
             // Try to add the photo to photoset
             if ($this->_photosetId !== null && $_photosetNewlyCreated === false) {
+                $this->_logger->info('>>> flickr.photos.addPhoto');
+                if ($this->_output->isVeryVerbose()) {
+                    $this->_output->writeln('>>> flickr.photos.addPhoto');
+                }
+
                 $params = array(
                     'photoset_id' => $this->_photosetId,
                     'photo_id' => $photoId
                 );
                 $result = $this->_flickrClient->post('flickr.photosets.addPhoto', $params);
 
+                $this->_logger->debug('<<< flickr.photos.addPhoto', array('params' => $params, 'result' => $result));
                 if ($this->_output->isDebug()) {
                     $this->_output->writeln(var_export($params, true));
                     $this->_output->writeln(var_export($result, true));
@@ -279,7 +301,7 @@ EOT
         }
     }
 
-    protected function _createSyncSet($photoId)
+    protected function _createSyncSet($photosetName, $photoId)
     {
         if ($this->_output->isVeryVerbose()) {
             $this->_output->writeln('>>> flickr.photos.create');
@@ -292,12 +314,13 @@ EOT
 //        ));
 
         $params = array(
-            'title' => 'Flickr-Sync',
+            'title' => $photosetName,
             'description' => 'All of the photos that are synced with Flickr-Sync are put in this Photo Set',
             'primary_photo_id' => $photoId
         );
         $result = $this->_flickrClient->post('flickr.photosets.create', $params);
-
+                
+        $this->_logger->debug('<<< flickr.photos.create', array('params' => $params, 'result' => $result));
         if ($this->_output->isDebug()) {
             $this->_output->writeln(var_export($params, true));
             $this->_output->writeln(var_export($result, true));
@@ -331,9 +354,15 @@ EOT
         foreach ($files as $file) {
             $filePath = $file->getRealPath();
             $filesInfo[$filePath]['hash'] = md5_file($filePath);
+            $filesInfo[$filePath]['machine_tags'] = array(
+                "itscaro:app=flickr-sync",
+                "itscaro:photo_hash=" . $filesInfo[$filePath]['hash'],
+                "itscaro:directory_origin=" . dirname($filePath),
+                "itscaro:directory=" . basename(dirname($filePath)),
+            );
             $filesInfo[$filePath]['requestId'] = $this->_flickrClientMulti->addToQueue('GET', 'flickr.photos.search', array(
                 'user_id' => $this->_accessToken->getParam('user_nsid'),
-                "machine_tags" => "itscaro:app=flickr-sync,itscaro:photo_hash=" . $filesInfo[$filePath]['hash'],
+                "machine_tags" => implode(',', $filesInfo[$filePath]['machine_tags']),
                 "machine_tag_mode" => "all"
             ));
         }
@@ -343,8 +372,10 @@ EOT
             $this->_output->writeln(var_export($filesInfo, 1));
         }
 
+        $this->_logger->info('>>> flickr.photos.search');
         $result = $this->_flickrClientMulti->dispatchMulti();
-
+        $this->_logger->debug('<<< flickr.photos.search', array('result' => $result));
+        
         if ($this->_output->isVeryVerbose()) {
             $this->_output->writeln('>>> flickr.photos.search');
             $this->_output->writeln(var_export($result, 1));
@@ -358,14 +389,16 @@ EOT
                 $_result = json_decode($result[$requestId], true);
                 if ($_result['photos']['total'] == 0) {
                     // File not found on Flickr
-                    $tag = "itscaro:app=flickr-sync itscaro:photo_hash=" . $filesInfo[$filePath]['hash'];
+                    $tag = implode(' ', $filesInfo[$filePath]['machine_tags']);
 
                     if ($this->_input->getOption('dry-run') === false) {
+                        $this->_logger->info('Uploading file', array('fileInfo' => $filesInfo[$filePath]));
+                        
                         $id= $this->_flickrUploader->uploadSync($filePath, $file->getBasename(), $file->getPath(), $tag);
-                        $uploadedPhotoIds[] = $id;
+                        $uploadedPhotoIds[$id] = $filesInfo[$filePath];
 
                         if ($this->_output->isVerbose()) {
-                            $this->_output->writeln("<comment>File uploaded: {$filePath} (Photo ID: {$id})</comment>");
+                            $this->_output->writeln("<comment>Photo ID {$id}: {$filePath}</comment>");
                         }
                     } else {
 

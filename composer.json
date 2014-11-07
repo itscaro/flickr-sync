@@ -30,6 +30,7 @@
         "Symfony/Process": "*",
         "Symfony/Yaml": "*",
         "Symfony/Config": "*",
+        "monolog/monolog": "*",
         "itscaro/zf2-restful": "dev-master"
     },
     "require-dev": {
