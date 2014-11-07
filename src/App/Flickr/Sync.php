@@ -20,7 +20,7 @@ class Sync extends Command {
 
     /**
      *
-     * @var \Symfony\Component\Console\Output\Output 
+     * @var \Symfony\Component\Console\Output\Output
      */
     protected $_output;
 
@@ -118,14 +118,20 @@ EOT
 //            var_dump($result);
 
             $finder = $this->_scan($this->_input->getArgument('directory'));
+            $filesFound = count($finder);
+
+            $this->_output->writeln("<info>Found {$filesFound} photos</info>");
 
             $flickrUploader = new \Itscaro\Service\Flickr\Photo($settings['accessToken'], $configOauth, $configHttpClient);
 
             $errors = array();
             $filesBatch = array();
-            $filesFound = count($finder);
             $counter = 0;
+
+            $progressBar = $this->getHelper('progress');
+            $progressBar->start($this->_output, $filesFound);
             foreach ($finder as $file) {
+                $progressBar->advance();
                 $counter++;
                 /* @var $file \Symfony\Component\Finder\SplFileInfo */
 
@@ -137,6 +143,8 @@ EOT
                     $filesBatch = array();
                 }
             }
+            $progressBar->finish();
+            $this->_output->writeln('');
 
 //            $id = $flickrUploader->uploadSync($filePath, basename($file), null, "itscaro:app=flickr-sync,itscaro:photo_hash=".  md5_file($file));
 //            echo $file . " - " . $id . "\n";
@@ -151,6 +159,10 @@ EOT
 
     protected function _scan($dir)
     {
+        $dirRealPath = realpath($dir);
+
+        $this->_output->writeln("<info>Scanning {$dirRealPath}...</info>");
+
         $finder = new \Symfony\Component\Finder\Finder();
         $finder->in($dir)
                 ->name('/.*\.(jpg|jpeg|png|gif|tif|tiff)$/');
@@ -195,6 +207,7 @@ EOT
                     $tag = "itscaro:app=flickr-sync itscaro:photo_hash=" . $filesInfo[$filePath]['hash'];
 
                     if ($this->_input->getOption('dry-run')) {
+                    } else {
                         $id = $flickrUploader->uploadAsync($filePath, $file->getBasename(), $file->getPath(), $tag);
                         $this->_output->writeln("<comment>File uploaded: {$filePath} (Photo ID: {$id})</comment>");
                     }
@@ -207,7 +220,7 @@ EOT
                 $this->_output->writeln("<error>Could not verify {$filePath}</error>");
             }
         }
-
+echo "test";
         return $errors;
     }
 
