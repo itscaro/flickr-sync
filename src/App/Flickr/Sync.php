@@ -2,31 +2,63 @@
 
 namespace Itscaro\App\Flickr;
 
+use Itscaro\App\Application;
+use Itscaro\Service\Flickr\Client;
+use Itscaro\Service\Flickr\ClientAbstract;
+use Itscaro\Service\Flickr\ClientMulti;
+use Itscaro\Service\Flickr\Photo;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\Input;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
+use Zend\Http\Client as Client2;
+use ZendOAuth\Consumer;
+use ZendOAuth\Token\Access;
 
 class Sync extends Command {
 
     /**
      *
-     * @var \Symfony\Component\Console\Input\Input
+     * @var Input
      */
     protected $_input;
 
     /**
      *
-     * @var \Symfony\Component\Console\Output\Output
+     * @var Output
      */
     protected $_output;
 
     /**
      *
-     * @var \ZendOAuth\Token\Access
+     * @var Access
      */
     protected $_accessToken;
+
+    /**
+     *
+     * @var Client
+     */
+    protected $_flickrClient;
+
+    /**
+     *
+     * @var ClientMulti
+     */
+    protected $_flickrClientMulti;
+
+    /**
+     *
+     * @var Photo
+     */
+    protected $_flickrUploader;
+
 
     protected function configure()
     {
@@ -36,8 +68,8 @@ class Sync extends Command {
                 ->setHelp(<<<EOT
 EOT
                 )
-            ->addOption('progess', 'p', \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL, 'Show progess bar', true)
-            ->addOption('dry-run', 'd', \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL, 'Dry run, do not upload to Flickr', false)
+            ->addOption('progess', 'p', InputOption::VALUE_OPTIONAL, 'Show progess bar', true)
+            ->addOption('dry-run', 'd', InputOption::VALUE_OPTIONAL, 'Dry run, do not upload to Flickr', false)
             ->addArgument('directory', InputArgument::OPTIONAL, 'Directory to scan', getcwd());
     }
 
@@ -47,7 +79,7 @@ EOT
         $this->_output = $output;
 
         $app = $this->getApplication();
-        /* @var $app \Itscaro\App\Application */
+        /* @var $app Application */
         $config = $app->getConfig();
 
         $settings = $app->getDataStore('store');
@@ -64,11 +96,11 @@ EOT
 
         if (!isset($settings['accessToken'])) {
             // Instantiate a client object
-            $httpClient = new \Zend\Http\Client('', $configHttpClient);
-            \ZendOAuth\Consumer::setHttpClient($httpClient);
+            $httpClient = new Client2('', $configHttpClient);
+            Consumer::setHttpClient($httpClient);
 
             // Oauth client
-            $consumer = new \ZendOAuth\Consumer($configOauth);
+            $consumer = new Consumer($configOauth);
 
             //var_dump($consumer->getRequestTokenUrl());
 
@@ -104,15 +136,14 @@ EOT
 
 //            $flickr = new \Itscaro\Service\Flickr\Flickr($configOauth, $configHttpClient);
 //            $flickr->setAccessToken($settings['accessToken']);
-//
-            $flickrMulti = new \Itscaro\Service\Flickr\ClientMulti('https://api.flickr.com/services/rest', $configOauth, $configHttpClient);
+
+            $this->_flickrClient = $flickrSimple = new Client('https://api.flickr.com/services/rest', $configOauth, $configHttpClient);
+            $flickrSimple->setAccessToken($settings['accessToken']);
+
+
+            $this->_flickrClientMulti = $flickrMulti = new ClientMulti('https://api.flickr.com/services/rest', $configOauth, $configHttpClient);
             $flickrMulti->setAccessToken($settings['accessToken']);
 
-//            $flickrSimple = new \Itscaro\Service\Flickr\Client('https://api.flickr.com/services/rest', $configOauth, $configHttpClient);
-//            $flickrSimple->setAccessToken($settings['accessToken']);
-//            $result = $flickrSimple->get('flickr.photosets.getList', array(
-//                'user_id' => "10995091@N00"
-//            ));
 //            var_dump($result);
 //
 //            $flickrMulti->addToQueue('GET', 'flickr.photosets.getList', array(
@@ -130,7 +161,7 @@ EOT
 
             $this->_output->writeln("<info>Found {$filesFound} photos</info>");
 
-            $flickrUploader = new \Itscaro\Service\Flickr\Photo($settings['accessToken'], $configOauth, $configHttpClient);
+            $this->_flickrUploader = $flickrUploader = new Photo($settings['accessToken'], $configOauth, $configHttpClient);
 
             $errors = array();
             $filesBatch = array();
@@ -140,7 +171,7 @@ EOT
                 if ($this->_input->getOption('progess')) {
                     $progressBar = $this->getHelper('progress');
                 }
-                
+
                 if (isset($progressBar)) {
                     $progressBar->start($this->_output, $filesFound);
                 }
@@ -150,13 +181,13 @@ EOT
                         $progressBar->advance();
                     }
                     $counter++;
-                    /* @var $file \Symfony\Component\Finder\SplFileInfo */
+                    /* @var $file SplFileInfo */
 
                     $filesBatch[] = $file;
 
                     if (count($filesBatch) == 10 || $filesFound == $counter) {
 
-                        $errors += $this->_process($flickrMulti, $flickrUploader, $filesBatch);
+                        $errors += $this->_process($filesBatch);
                         $filesBatch = array();
                     }
                 }
@@ -179,27 +210,93 @@ EOT
         $output->writeln('<info>Done</info>');
     }
 
+    protected function _getSyncSetId()
+    {
+//        $result = $flickrMulti->dispatch('GET', 'flickr.photosets.getList', array(
+//            'user_id' => $this->_accessToken->getParam('user_nsid')
+//        ));
+        $result = $this->_flickrClient->get('flickr.photosets.getList', array(
+            'user_id' => $this->_accessToken->getParam('user_nsid')
+        ));
+
+        if($result['stat'] == 'ok') {
+            foreach($result['photosets']['photoset'] as $_photoset) {
+                if ($_photoset['title']['_content'] == "Flickr-Sync") {
+                    return $_photoset['title']['id'];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    protected function _addToSyncSet($photoId)
+    {
+        if ($this->_photosetId === null) {
+            $this->_photosetId = $this->_getSyncSetId();
+        }
+
+        if ($this->_photosetId === null) {
+            $this->_createSyncSet($photoId);
+        }
+
+        $result = $this->_flickrClient->post('flickr.photosets.addPhoto', array(
+            'photoset_id' => $this->_photosetId,
+            'photo_id' => $photoId
+        ));
+
+//        $flickrMulti->dispatch('POST', 'flickr.photosets.addPhoto', array(
+//            'photoset_id' => $this->_photosetId,
+//            'photo_id' => $photoId
+//        ));
+    }
+
+    protected function _createSyncSet($photoId)
+    {
+        if ($this->_output->isVeryVerbose()) {
+            $this->_output->writeln('>>> flickr.photos.create');
+        }
+
+//        $result = $flickrMulti->dispatch('POST', 'flickr.photosets.create', array(
+//            'title' => 'Flickr-Sync',
+//            'description' => 'All of the photos that are synced with Flickr-Sync are put in this Photo Set',
+//            'primary_photo_id' => $photoId
+//        ));
+
+        $result = $this->_flickrClient->post('flickr.photosets.create', array(
+            'title' => 'Flickr-Sync',
+            'description' => 'All of the photos that are synced with Flickr-Sync are put in this Photo Set',
+            'primary_photo_id' => $photoId
+        ));
+
+        if ($result['stat'] == 'ok') {
+            return $result['photoset']['id'];
+        }
+
+        return null;
+    }
+
     protected function _scan($dir)
     {
         $dirRealPath = realpath($dir);
 
         $this->_output->writeln("<info>Scanning {$dirRealPath}...</info>");
 
-        $finder = new \Symfony\Component\Finder\Finder();
+        $finder = new Finder();
         $finder->in($dir)
                 ->name('/.*\.(jpg|jpeg|png|gif|tif|tiff)$/');
 
         return $finder;
     }
 
-    protected function _process($flickrMulti, $flickrUploader, array $files)
+    protected function _process(array $files)
     {
         $errors = array();
         $filesInfo = array();
         foreach ($files as $file) {
             $filePath = $file->getRealPath();
             $filesInfo[$filePath]['hash'] = md5_file($filePath);
-            $filesInfo[$filePath]['requestId'] = $flickrMulti->addToQueue('GET', 'flickr.photos.search', array(
+            $filesInfo[$filePath]['requestId'] = $this->_flickrClientMulti->addToQueue('GET', 'flickr.photos.search', array(
                 'user_id' => $this->_accessToken->getParam('user_nsid'),
                 "machine_tags" => "itscaro:app=flickr-sync,itscaro:photo_hash=" . $filesInfo[$filePath]['hash'],
                 "machine_tag_mode" => "all"
@@ -211,7 +308,7 @@ EOT
             $this->_output->writeln(var_export($filesInfo, 1));
         }
 
-        $result = $flickrMulti->dispatchMulti();
+        $result = $this->_flickrClientMulti->dispatchMulti();
 
         if ($this->_output->isVeryVerbose()) {
             $this->_output->writeln('>>> flickr.photos.search');
@@ -229,7 +326,10 @@ EOT
                     $tag = "itscaro:app=flickr-sync itscaro:photo_hash=" . $filesInfo[$filePath]['hash'];
 
                     if ($this->_input->getOption('dry-run') === false) {
-                        $id = $flickrUploader->uploadAsync($filePath, $file->getBasename(), $file->getPath(), $tag);
+                        $id = $this->_flickrUploader->uploadSync($filePath, $file->getBasename(), $file->getPath(), $tag);
+
+                        $this->_addToSyncSet($id);
+
                         if ($this->_output->isVerbose()) {
                             $this->_output->writeln("<comment>File uploaded: {$filePath} (Photo ID: {$id})</comment>");
                         }
