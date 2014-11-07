@@ -341,7 +341,7 @@ EOT
 
         $finder = new Finder();
         $finder->in($dir)
-                ->name('/.*\.(jpg|jpeg|png|gif|tif|tiff)$/');
+                ->name('/.*\.(jpg|jpeg|png|gif|tif|tiff)$/i');
 
         return $finder;
     }
