@@ -24,6 +24,12 @@ class Sync extends Command {
      */
     protected $_output;
 
+    /**
+     *
+     * @var \ZendOAuth\Token\Access
+     */
+    protected $_accessToken;
+
     protected function configure()
     {
         $this->setName("flickr:sync")
@@ -94,6 +100,8 @@ EOT
                 'accessToken' => $accessToken
             ));
         } else {
+            $this->_accessToken = $settings['accessToken'];
+
 //            $flickr = new \Itscaro\Service\Flickr\Flickr($configOauth, $configHttpClient);
 //            $flickr->setAccessToken($settings['accessToken']);
 //
@@ -128,23 +136,25 @@ EOT
             $filesBatch = array();
             $counter = 0;
 
-            $progressBar = $this->getHelper('progress');
-            $progressBar->start($this->_output, $filesFound);
-            foreach ($finder as $file) {
-                $progressBar->advance();
-                $counter++;
-                /* @var $file \Symfony\Component\Finder\SplFileInfo */
+            if ($filesFound > 0) {
+                $progressBar = $this->getHelper('progress');
+                $progressBar->start($this->_output, $filesFound);
+                foreach ($finder as $file) {
+                    $progressBar->advance();
+                    $counter++;
+                    /* @var $file \Symfony\Component\Finder\SplFileInfo */
 
-                $filesBatch[] = $file;
+                    $filesBatch[] = $file;
 
-                if (count($filesBatch) == 10 || $filesFound == $counter) {
+                    if (count($filesBatch) == 10 || $filesFound == $counter) {
 
-                    $errors += $this->_process($flickrMulti, $flickrUploader, $filesBatch);
-                    $filesBatch = array();
+                        $errors += $this->_process($flickrMulti, $flickrUploader, $filesBatch);
+                        $filesBatch = array();
+                    }
                 }
+                $progressBar->finish();
+                $this->_output->writeln('');
             }
-            $progressBar->finish();
-            $this->_output->writeln('');
 
 //            $id = $flickrUploader->uploadSync($filePath, basename($file), null, "itscaro:app=flickr-sync,itscaro:photo_hash=".  md5_file($file));
 //            echo $file . " - " . $id . "\n";
@@ -178,7 +188,7 @@ EOT
             $filePath = $file->getRealPath();
             $filesInfo[$filePath]['hash'] = md5_file($filePath);
             $filesInfo[$filePath]['requestId'] = $flickrMulti->addToQueue('GET', 'flickr.photos.search', array(
-                'user_id' => "10995091@N00",
+                'user_id' => $this->_accessToken->getParam('user_nsid'),
                 "machine_tags" => "itscaro:app=flickr-sync,itscaro:photo_hash=" . $filesInfo[$filePath]['hash'],
                 "machine_tag_mode" => "all"
             ));
@@ -206,10 +216,11 @@ EOT
                     // File not found on Flickr
                     $tag = "itscaro:app=flickr-sync itscaro:photo_hash=" . $filesInfo[$filePath]['hash'];
 
-                    if ($this->_input->getOption('dry-run')) {
-                    } else {
+                    if ($this->_input->getOption('dry-run') === false) {
                         $id = $flickrUploader->uploadAsync($filePath, $file->getBasename(), $file->getPath(), $tag);
                         $this->_output->writeln("<comment>File uploaded: {$filePath} (Photo ID: {$id})</comment>");
+                    } else {
+
                     }
                 } else {
                     // File exists on Flickr
