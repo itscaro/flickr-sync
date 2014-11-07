@@ -30,11 +30,8 @@
         "Symfony/Process": "*",
         "Symfony/Yaml": "*",
         "Symfony/Config": "*",
-        "itscaro/zf2-restful": "dev-master",
-        "itscaro/phpflickr": "dev-master",
-        "dopiaza/dpzflickr": "dev-master"
+        "itscaro/zf2-restful": "dev-master"
     },
     "require-dev": {
-        "kherge/box": "*"
     }
 }

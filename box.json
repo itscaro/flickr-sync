@@ -1,0 +1,30 @@
+{
+    "chmod": "0755",
+    "compression": "GZ",
+    "compactors": [
+        "Herrera\\Box\\Compactor\\Json",
+        "Herrera\\Box\\Compactor\\Php"
+    ],
+    "directories": [
+        "src"
+    ],
+    "finder": [
+        {
+            "name": "*.php",
+            "exclude": [
+                "phpunit",
+                "Tests",
+                "tests",
+                "Test",
+		"test",
+                "examples",
+                "example"
+            ],
+            "in": "vendor"
+        }
+    ],
+    "main": "bin/run.php",
+    "output": "dist/flickr-sync.phar",
+    "stub": true
+}
+
