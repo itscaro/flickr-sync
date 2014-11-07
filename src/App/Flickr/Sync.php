@@ -306,7 +306,7 @@ EOT
         if ($result['stat'] == 'ok') {
             return $result['photoset']['id'];
         } else {
-            throw new Exception($result['message'], $result['code']);
+            throw new \Exception($result['message'], $result['code']);
         }
     }
 
@@ -361,7 +361,8 @@ EOT
                     $tag = "itscaro:app=flickr-sync itscaro:photo_hash=" . $filesInfo[$filePath]['hash'];
 
                     if ($this->_input->getOption('dry-run') === false) {
-                        $uploadedPhotoIds[] = $this->_flickrUploader->uploadSync($filePath, $file->getBasename(), $file->getPath(), $tag);
+                        $id= $this->_flickrUploader->uploadSync($filePath, $file->getBasename(), $file->getPath(), $tag);
+                        $uploadedPhotoIds[] = $id;
 
                         if ($this->_output->isVerbose()) {
                             $this->_output->writeln("<comment>File uploaded: {$filePath} (Photo ID: {$id})</comment>");
