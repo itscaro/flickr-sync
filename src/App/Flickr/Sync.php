@@ -245,7 +245,7 @@ EOT
         if($result['stat'] == 'ok') {
             foreach($result['photosets']['photoset'] as $_photoset) {
                 if ($_photoset['title']['_content'] == $photosetName) {
-                    return $_photoset['title']['id'];
+                    return $_photoset['id'];
                 }
             }
         }
@@ -340,7 +340,8 @@ EOT
         $this->_output->writeln("<info>Scanning {$dirRealPath}...</info>");
 
         $finder = new Finder();
-        $finder->in($dir)
+        $finder->setAdapter('php')
+                ->in($dir)
                 ->name('/.*\.(jpg|jpeg|png|gif|tif|tiff)$/i');
 
         return $finder;
