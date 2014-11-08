@@ -23,6 +23,8 @@ use ZendOAuth\Token\Access;
 
 class Sync extends Command {
 
+    const WAIT_BETWEEN_BATCH = 2500; // in µ second
+    
     /**
      *
      * @var Input
@@ -58,7 +60,7 @@ class Sync extends Command {
      * @var Photo
      */
     protected $_flickrUploader;
-    
+
     /**
      *
      * @var  
@@ -79,9 +81,9 @@ class Sync extends Command {
                 ->setHelp(<<<EOT
 EOT
                 )
-            ->addOption('progess', 'p', InputOption::VALUE_OPTIONAL, 'Show progess bar', true)
-            ->addOption('dry-run', 'd', InputOption::VALUE_OPTIONAL, 'Dry run, do not upload to Flickr', false)
-            ->addArgument('directory', InputArgument::OPTIONAL, 'Directory to scan', getcwd());
+                ->addOption('progess', 'p', InputOption::VALUE_OPTIONAL, 'Show progess bar', true)
+                ->addOption('dry-run', 'd', InputOption::VALUE_OPTIONAL, 'Dry run, do not upload to Flickr', false)
+                ->addArgument('directory', InputArgument::OPTIONAL, 'Directory to scan', getcwd());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -93,9 +95,9 @@ EOT
         /* @var $app Application */
         $config = $app->getConfig();
         $this->_logger = $app->getLogger();
-        
+
         $this->_logger->info('Application started');
-        
+
         $settings = $app->getDataStore('store');
 
         $configOauth = array(
@@ -200,8 +202,10 @@ EOT
 
                         $errors += $this->_process($filesBatch);
                         $filesBatch = array();
+                        
+                        usleep(self::WAIT_BETWEEN_BATCH);
                     }
-                    
+
                     if (isset($progressBar)) {
                         $progressBar->setCurrent($counter);
                     }
@@ -242,8 +246,8 @@ EOT
             $this->_output->writeln(var_export($result, true));
         }
 
-        if($result['stat'] == 'ok') {
-            foreach($result['photosets']['photoset'] as $_photoset) {
+        if ($result['stat'] == 'ok') {
+            foreach ($result['photosets']['photoset'] as $_photoset) {
                 if ($_photoset['title']['_content'] == $photosetName) {
                     return $_photoset['id'];
                 }
@@ -255,7 +259,7 @@ EOT
 
     protected function _addToSyncSet(array $photoIds)
     {
-        foreach($photoIds as $photoId => $photoInfo) {
+        foreach ($photoIds as $photoId => $photoInfo) {
             $_photosetNewlyCreated = false;
 
             // Try to get the photoset using to stock synced photos
@@ -269,7 +273,7 @@ EOT
                     $this->_photosetId = $this->_createSyncSet("Flickr-Sync", $photoId);
 
                     $_photosetNewlyCreated = true;
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     $this->_output->writeln("<error>Cannot create photoset: " . $e->getMessage() . "</error>");
                 }
             }
@@ -294,10 +298,10 @@ EOT
                 }
             }
 
-    //        $flickrMulti->dispatch('POST', 'flickr.photosets.addPhoto', array(
-    //            'photoset_id' => $this->_photosetId,
-    //            'photo_id' => $photoId
-    //        ));
+            //        $flickrMulti->dispatch('POST', 'flickr.photosets.addPhoto', array(
+            //            'photoset_id' => $this->_photosetId,
+            //            'photo_id' => $photoId
+            //        ));
         }
     }
 
@@ -319,7 +323,7 @@ EOT
             'primary_photo_id' => $photoId
         );
         $result = $this->_flickrClient->post('flickr.photosets.create', $params);
-                
+
         $this->_logger->debug('<<< flickr.photos.create', array('params' => $params, 'result' => $result));
         if ($this->_output->isDebug()) {
             $this->_output->writeln(var_export($params, true));
@@ -329,6 +333,7 @@ EOT
         if ($result['stat'] == 'ok') {
             return $result['photoset']['id'];
         } else {
+            $this->_logger->error('!!! flickr.photos.create', array('message' => $result['message'], 'code' => $result['code']));
             throw new \Exception($result['message'], $result['code']);
         }
     }
@@ -376,7 +381,7 @@ EOT
         $this->_logger->info('>>> flickr.photos.search');
         $result = $this->_flickrClientMulti->dispatchMulti();
         $this->_logger->debug('<<< flickr.photos.search', array('result' => $result));
-        
+
         if ($this->_output->isVeryVerbose()) {
             $this->_output->writeln('>>> flickr.photos.search');
             $this->_output->writeln(var_export($result, 1));
@@ -394,15 +399,19 @@ EOT
 
                     if ($this->_input->getOption('dry-run') === false) {
                         $this->_logger->info('Uploading file', array('fileInfo' => $filesInfo[$filePath]));
-                        
-                        $id= $this->_flickrUploader->uploadSync($filePath, $file->getBasename(), $file->getPath(), $tag);
-                        $uploadedPhotoIds[$id] = $filesInfo[$filePath];
+
+                        try {
+                            $id = $this->_flickrUploader->uploadSync($filePath, $file->getBasename(), $file->getPath(), $tag);
+                            $uploadedPhotoIds[$id] = $filesInfo[$filePath];
+                        } catch (\Exception $e) {
+                            $this->_logger->error('!!! Upload failed', array('message' => $e->getMessage(), 'code' => $e->getCode()));
+                        }
 
                         if ($this->_output->isVerbose()) {
                             $this->_output->writeln("<comment>Photo ID {$id}: {$filePath}</comment>");
                         }
                     } else {
-
+                        // Dry-run do not upload to Flickr
                     }
                 } else {
                     // File exists on Flickr
