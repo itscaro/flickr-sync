@@ -25,9 +25,9 @@ final class Application extends SymfonyApplication {
 
         $this->_logger = new Logger('default');
         $this->_logger->pushHandler(new MonologHandler\NullHandler(Logger::DEBUG));
-        $this->_logger->pushHandler(new MonologHandler\StreamHandler('./warning.log', Logger::WARNING));
-        $this->_logger->pushHandler(new MonologHandler\StreamHandler('./info.log', Logger::INFO));
-        $this->_logger->pushHandler(new MonologHandler\StreamHandler('./debug.log', Logger::DEBUG));
+        $this->_logger->pushHandler(new MonologHandler\StreamHandler('./data/log/warning.log', Logger::WARNING));
+        $this->_logger->pushHandler(new MonologHandler\StreamHandler('./data/log/info.log', Logger::INFO));
+        $this->_logger->pushHandler(new MonologHandler\StreamHandler('./data/log/debug.log', Logger::DEBUG));
         $this->_logger->pushProcessor(new \Monolog\Processor\MemoryUsageProcessor());
     }
 

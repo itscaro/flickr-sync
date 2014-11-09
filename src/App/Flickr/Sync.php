@@ -4,7 +4,6 @@ namespace Itscaro\App\Flickr;
 
 use Itscaro\App\Application;
 use Itscaro\Service\Flickr\Client;
-use Itscaro\Service\Flickr\ClientAbstract;
 use Itscaro\Service\Flickr\ClientMulti;
 use Itscaro\Service\Flickr\Photo;
 use Symfony\Component\Console\Command\Command;
@@ -17,36 +16,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use Zend\Http\Client as Client2;
+use Zend\Http\Client as ZendHttpClient;
 use ZendOAuth\Consumer;
 use ZendOAuth\Token\Access;
 
-class Sync extends Command {
+class Sync extends CommandAbstract {
 
     const WAIT_BETWEEN_BATCH = 2500; // in µ second
-    
-    /**
-     *
-     * @var Input
-     */
-    protected $_input;
-
-    /**
-     *
-     * @var Output
-     */
-    protected $_output;
-
-    /**
-     *
-     * @var Access
-     */
-    protected $_accessToken;
 
     /**
      *
      * @var Client
      */
+
     protected $_flickrClient;
 
     /**
@@ -68,10 +50,17 @@ class Sync extends Command {
     protected $_photosetId;
 
     /**
-     *
-     * @var \Monolog\Logger
+     * List of supported extensions
+     * @var array
      */
-    private $_logger;
+    private $_supportedExtensions = array(
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'tif',
+        'tiff'
+    );
 
     protected function configure()
     {
@@ -88,16 +77,13 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->_input = $input;
-        $this->_output = $output;
+        $this->_preExecute($input, $output);
+
+        $startTime = microtime(1);
 
         $app = $this->getApplication();
         /* @var $app Application */
         $config = $app->getConfig();
-        $this->_logger = $app->getLogger();
-
-        $this->_logger->info('Application started');
-
         $settings = $app->getDataStore('store');
 
         $configOauth = array(
@@ -112,7 +98,7 @@ EOT
 
         if (!isset($settings['accessToken'])) {
             // Instantiate a client object
-            $httpClient = new Client2('', $configHttpClient);
+            $httpClient = new ZendHttpClient('', $configHttpClient);
             Consumer::setHttpClient($httpClient);
 
             // Oauth client
@@ -150,12 +136,21 @@ EOT
         } else {
             $this->_accessToken = $settings['accessToken'];
 
-//            $flickr = new \Itscaro\Service\Flickr\Flickr($configOauth, $configHttpClient);
-//            $flickr->setAccessToken($settings['accessToken']);
+//            $flickr = new \Itscaro\Service\Flickr\Flickr($this->_accessToken, $configOauth, $configHttpClient);
+//            $photos = $flickr->photoSearchAll(array(
+//                'user_id' => $this->_accessToken->getParam('user_nsid'),
+//                "machine_tags" => implode(',', array(
+//                    'itscaro:directory_origin=/mnt/HD/HD_b2/Pictures/Kung/2013/ITALIA/101CANON'
+//                )),
+//                "machine_tag_mode" => "all",
+//                'per_page' => 1000
+//            ));
+//
+//            var_dump($photos->total);
+//            exit;
 
             $this->_flickrClient = $flickrSimple = new Client('https://api.flickr.com/services/rest', $configOauth, $configHttpClient);
             $flickrSimple->setAccessToken($settings['accessToken']);
-
 
             $this->_flickrClientMulti = $flickrMulti = new ClientMulti('https://api.flickr.com/services/rest', $configOauth, $configHttpClient);
             $flickrMulti->setAccessToken($settings['accessToken']);
@@ -202,7 +197,7 @@ EOT
 
                         $errors += $this->_process($filesBatch);
                         $filesBatch = array();
-                        
+
                         usleep(self::WAIT_BETWEEN_BATCH);
                     }
 
@@ -226,7 +221,8 @@ EOT
 //            var_dump($response);
         }
 
-        $output->writeln('<info>Done</info>');
+        $output->writeln('<info>Done in ' . round((microtime(1) - $startTime) / 1000, 1) . '</info>');
+        $this->_postExecute($input, $output, array('startTime' => $startTime));
     }
 
     protected function _getSyncSetId($photosetName)
@@ -280,18 +276,19 @@ EOT
 
             // Try to add the photo to photoset
             if ($this->_photosetId !== null && $_photosetNewlyCreated === false) {
-                $this->_logger->info('>>> flickr.photos.addPhoto');
+                $this->_logger->info('>>> flickr.photosets.addPhoto');
                 if ($this->_output->isVeryVerbose()) {
-                    $this->_output->writeln('>>> flickr.photos.addPhoto');
+                    $this->_output->writeln('>>> flickr.photosets.addPhoto');
                 }
 
+                //@todo switch to clientmulti
                 $params = array(
                     'photoset_id' => $this->_photosetId,
                     'photo_id' => $photoId
                 );
                 $result = $this->_flickrClient->post('flickr.photosets.addPhoto', $params);
 
-                $this->_logger->debug('<<< flickr.photos.addPhoto', array('params' => $params, 'result' => $result));
+                $this->_logger->debug('<<< flickr.photosets.addPhoto', array('params' => $params, 'result' => $result));
                 if ($this->_output->isDebug()) {
                     $this->_output->writeln(var_export($params, true));
                     $this->_output->writeln(var_export($result, true));
@@ -307,8 +304,9 @@ EOT
 
     protected function _createSyncSet($photosetName, $photoId)
     {
+        $this->_logger->info('>>> flickr.photosets.create');
         if ($this->_output->isVeryVerbose()) {
-            $this->_output->writeln('>>> flickr.photos.create');
+            $this->_output->writeln('>>> flickr.photosets.create');
         }
 
 //        $result = $flickrMulti->dispatch('POST', 'flickr.photosets.create', array(
@@ -333,7 +331,7 @@ EOT
         if ($result['stat'] == 'ok') {
             return $result['photoset']['id'];
         } else {
-            $this->_logger->error('!!! flickr.photos.create', array('message' => $result['message'], 'code' => $result['code']));
+            $this->_logger->error('!!! flickr.photosets.create', array('message' => $result['message'], 'code' => $result['code']));
             throw new \Exception($result['message'], $result['code']);
         }
     }
@@ -347,7 +345,7 @@ EOT
         $finder = new Finder();
         $finder->setAdapter('php')
                 ->in($dir)
-                ->name('/.*\.(jpg|jpeg|png|gif|tif|tiff)$/i');
+                ->name('/.*\.(' . implode('|', $this->_supportedExtensions) . ')$/i');
 
         return $finder;
     }
@@ -363,8 +361,8 @@ EOT
             $filesInfo[$filePath]['machine_tags'] = array(
                 "itscaro:app=flickr-sync",
                 "itscaro:photo_hash=" . $filesInfo[$filePath]['hash'],
-                "itscaro:directory_origin=" . dirname($filePath),
-                "itscaro:directory=" . basename(dirname($filePath)),
+                "itscaro:directory_origin=" . $this->_sanitizeTag(dirname($filePath)),
+                "itscaro:directory=" . $this->_sanitizeTag(basename(dirname($filePath))),
             );
             $filesInfo[$filePath]['requestId'] = $this->_flickrClientMulti->addToQueue('GET', 'flickr.photos.search', array(
                 'user_id' => $this->_accessToken->getParam('user_nsid'),
@@ -373,7 +371,7 @@ EOT
             ));
         }
 
-        if ($this->_output->isVerbose()) {
+        if ($this->_output->isVeryVerbose()) {
             $this->_output->writeln('>>> Files to check');
             $this->_output->writeln(var_export($filesInfo, 1));
         }
@@ -398,17 +396,18 @@ EOT
                     $tag = implode(' ', $filesInfo[$filePath]['machine_tags']);
 
                     if ($this->_input->getOption('dry-run') === false) {
-                        $this->_logger->info('Uploading file', array('fileInfo' => $filesInfo[$filePath]));
+                        $this->_logger->info('Uploading file', array('file' => $filePath, 'fileInfo' => $filesInfo[$filePath]));
 
                         try {
                             $id = $this->_flickrUploader->uploadSync($filePath, $file->getBasename(), $file->getPath(), $tag);
                             $uploadedPhotoIds[$id] = $filesInfo[$filePath];
+
+                            $this->_logger->info("Photo ID {$id}: {$filePath}");
+                            if ($this->_output->isVerbose()) {
+                                $this->_output->writeln("<comment>Photo ID {$id}: {$filePath}</comment>");
+                            }
                         } catch (\Exception $e) {
                             $this->_logger->error('!!! Upload failed', array('message' => $e->getMessage(), 'code' => $e->getCode()));
-                        }
-
-                        if ($this->_output->isVerbose()) {
-                            $this->_output->writeln("<comment>Photo ID {$id}: {$filePath}</comment>");
                         }
                     } else {
                         // Dry-run do not upload to Flickr
@@ -428,6 +427,11 @@ EOT
         $this->_addToSyncSet($uploadedPhotoIds);
 
         return $errors;
+    }
+
+    protected function _sanitizeTag($string)
+    {
+        return preg_replace('/[^a-z0-9-_]/i', '_', $string);
     }
 
 }
