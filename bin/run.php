@@ -19,6 +19,7 @@ $app->setConfig($config);
 $app->setName($config['app']['name']);
 $app->setVersion($config['app']['version']);
 $app->addCommands(array(
+    new App\Flickr\Upload(),
     new App\Flickr\Sync(),
 ));
 $app->run();
