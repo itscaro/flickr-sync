@@ -24,6 +24,12 @@
         }
     ],
     "require": {
+        "php": ">=5.3.11",
+        "ext-curl": "*",
+        "lib-curl": "*",
+        "lib-libxml": "*",
+        "lib-openssl": "*",
+        "lib-pcre": "*",
         "Symfony/Console": "*",
         "Symfony/Finder": "*",
         "Symfony/Filesystem": "*",
@@ -31,6 +37,7 @@
         "Symfony/Yaml": "*",
         "Symfony/Config": "*",
         "monolog/monolog": "*",
+        "netresearch/jsonmapper": "*",
         "itscaro/zf2-restful": "dev-master"
     },
     "require-dev": {

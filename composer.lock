@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d5ac259bb8dfb0db386bb3d12eb96f25",
+    "hash": "8bb5fbd59bb42eaddc9554c5aad66b0f",
     "packages": [
         {
             "name": "itscaro/zf2-restful",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/itscaro/zf2-restful.git",
-                "reference": "e62bfa144b590786f29dc0d8072ca16d240e2f54"
+                "reference": "5543edb20e781a48e6c463a74de395e2467be89f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itscaro/zf2-restful/zipball/e62bfa144b590786f29dc0d8072ca16d240e2f54",
-                "reference": "e62bfa144b590786f29dc0d8072ca16d240e2f54",
+                "url": "https://api.github.com/repos/itscaro/zf2-restful/zipball/5543edb20e781a48e6c463a74de395e2467be89f",
+                "reference": "5543edb20e781a48e6c463a74de395e2467be89f",
                 "shasum": ""
             },
             "require": {
@@ -45,7 +45,7 @@
                 "source": "https://github.com/itscaro/zf2-restful/tree/master",
                 "issues": "https://github.com/itscaro/zf2-restful/issues"
             },
-            "time": "2014-11-07 21:54:05"
+            "time": "2014-11-08 01:28:43"
         },
         {
             "name": "monolog/monolog",
@@ -118,6 +118,44 @@
                 "psr-3"
             ],
             "time": "2014-09-30 13:30:58"
+        },
+        {
+            "name": "netresearch/jsonmapper",
+            "version": "v0.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/netresearch/jsonmapper.git",
+                "reference": "2c59011e24de9213290f5768749807c49d9bd7cf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/netresearch/jsonmapper/zipball/2c59011e24de9213290f5768749807c49d9bd7cf",
+                "reference": "2c59011e24de9213290f5768749807c49d9bd7cf",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.2.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "AGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Christian Weiske",
+                    "email": "christian.weiske@netresearch.de",
+                    "homepage": "http://www.netresearch.de/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Map nested JSON structures onto PHP classes",
+            "time": "2014-11-04 07:55:25"
         },
         {
             "name": "psr/log",
@@ -1050,6 +1088,13 @@
         "itscaro/zf2-restful": 20
     },
     "prefer-stable": false,
-    "platform": [],
+    "platform": {
+        "php": ">=5.3.11",
+        "ext-curl": "*",
+        "lib-curl": "*",
+        "lib-libxml": "*",
+        "lib-openssl": "*",
+        "lib-pcre": "*"
+    },
     "platform-dev": []
 }
