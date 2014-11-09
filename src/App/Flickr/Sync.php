@@ -221,7 +221,7 @@ EOT
 //            var_dump($response);
         }
 
-        $output->writeln('<info>Done in ' . round((microtime(1) - $startTime) / 1000, 1) . '</info>');
+        $output->writeln('<info>Done in ' . round((microtime(1) - $startTime), 1) . '</info>');
         $this->_postExecute($input, $output, array('startTime' => $startTime));
     }
 

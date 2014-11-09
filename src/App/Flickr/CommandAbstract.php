@@ -60,7 +60,7 @@ class CommandAbstract extends Command {
 
     protected function _postExecute(InputInterface $input, OutputInterface $output, array $params = array())
     {
-        $this->_logger->info('Done in ' . round((microtime(1) - $params['startTime']) / 1000, 1));
+        $this->_logger->info('Done in ' . round((microtime(1) - $params['startTime']), 1));
     }
 
 }
