@@ -2,8 +2,10 @@
 
 namespace Itscaro\App;
 
-use Monolog\Logger,
-    Monolog\Handler as MonologHandler;
+use Monolog\Handler as MonologHandler;
+use Monolog\Logger;
+use Monolog\Processor\MemoryUsageProcessor;
+use Monolog\Processor\UidProcessor;
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -23,12 +25,13 @@ final class Application extends SymfonyApplication {
     {
         parent::__construct($name, $version);
 
-        $this->_logger = new Logger('default');
+        $this->_logger = new Logger('Flickr-Sync' . getmypid());
         $this->_logger->pushHandler(new MonologHandler\NullHandler(Logger::DEBUG));
         $this->_logger->pushHandler(new MonologHandler\StreamHandler('./data/log/warning.log', Logger::WARNING));
         $this->_logger->pushHandler(new MonologHandler\StreamHandler('./data/log/info.log', Logger::INFO));
         $this->_logger->pushHandler(new MonologHandler\StreamHandler('./data/log/debug.log', Logger::DEBUG));
-        $this->_logger->pushProcessor(new \Monolog\Processor\MemoryUsageProcessor());
+        $this->_logger->pushProcessor(new MemoryUsageProcessor());
+        $this->_logger->pushProcessor(new UidProcessor());
     }
 
     /**
@@ -44,9 +47,23 @@ final class Application extends SymfonyApplication {
      * Returns configuration array
      * @return array
      */
-    public function getConfig()
+    public function getConfig($key = null)
     {
-        return $this->_config;
+        if ($key !== null) {
+            if ($key == 'flickr-oauth') {
+                return array(
+                    'siteUrl' => $this->_config['flickr']['oauth']['siteUrl'],
+                    'consumerKey' => $this->_config['flickr']['oauth']['consumerKey'],
+                    'consumerSecret' => $this->_config['flickr']['oauth']['consumerSecret'],
+                );
+            } elseif (isset($this->_config[$key])) {
+                return $this->_config[$key];
+            } else {
+                throw new Exception("Config key '{$key}' does not exist");
+            }
+        } else {
+            return $this->_config;
+        }
     }
 
     /**

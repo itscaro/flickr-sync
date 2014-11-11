@@ -3,22 +3,14 @@
 namespace Itscaro\App\Flickr;
 
 use Itscaro\App\Application;
-use Itscaro\Service\Flickr\Client;
-use Itscaro\Service\Flickr\ClientMulti;
-use Itscaro\Service\Flickr\Photo;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\Input;
+use Itscaro\App\Flickr\Library\Authenticate;
+use Itscaro\Service\Flickr\Flickr;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use Zend\Http\Client as ZendHttpClient;
-use ZendOAuth\Consumer;
-use ZendOAuth\Token\Access;
 
 class Verify extends CommandAbstract {
 
@@ -47,22 +39,11 @@ EOT
 
         $app = $this->getApplication();
         /* @var $app Application */
-        $config = $app->getConfig();
         $settings = $app->getDataStore('store');
 
-        $configOauth = array(
-            'siteUrl' => $config['flickr']['oauth']['siteUrl'],
-            'consumerKey' => $config['flickr']['oauth']['consumerKey'],
-            'consumerSecret' => $config['flickr']['oauth']['consumerSecret'],
-        );
-        $configHttpClient = array(
-            'adapter' => 'Zend\Http\Client\Adapter\Curl',
-            'sslverifypeer' => false
-        );
-
         if (!isset($settings['accessToken'])) {
-            $authenticate = new Library\Authenticate($input, $output, $this->_logger);
-            $accessToken = $authenticate->authenticate($configOauth, $configHttpClient);
+            $authenticate = new Authenticate($input, $output, $this->_logger);
+            $accessToken = $authenticate->authenticate($app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
 
             $app->setDataStore('store', array(
                 'accessToken' => $accessToken
@@ -72,7 +53,7 @@ EOT
 
             $directoryToProcess = realpath($this->_input->getArgument(self::ARG_DIRECTORY));
 
-            $flickr = new \Itscaro\Service\Flickr\Flickr($this->_accessToken, $configOauth, $configHttpClient);
+            $flickr = new Flickr($this->_accessToken, $app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
                             
             // Scan for all sub-dir
             $finder = $this->_scan($directoryToProcess);

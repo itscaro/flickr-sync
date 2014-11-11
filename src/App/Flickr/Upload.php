@@ -2,23 +2,18 @@
 
 namespace Itscaro\App\Flickr;
 
+use Exception;
 use Itscaro\App\Application;
+use Itscaro\App\Flickr\Library\Authenticate;
 use Itscaro\Service\Flickr\Client;
 use Itscaro\Service\Flickr\ClientMulti;
 use Itscaro\Service\Flickr\Photo;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\Input;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use Zend\Http\Client as ZendHttpClient;
-use ZendOAuth\Consumer;
-use ZendOAuth\Token\Access;
 
 class Upload extends CommandAbstract {
 
@@ -72,22 +67,11 @@ EOT
 
         $app = $this->getApplication();
         /* @var $app Application */
-        $config = $app->getConfig();
         $settings = $app->getDataStore('store');
 
-        $configOauth = array(
-            'siteUrl' => $config['flickr']['oauth']['siteUrl'],
-            'consumerKey' => $config['flickr']['oauth']['consumerKey'],
-            'consumerSecret' => $config['flickr']['oauth']['consumerSecret'],
-        );
-        $configHttpClient = array(
-            'adapter' => 'Zend\Http\Client\Adapter\Curl',
-            'sslverifypeer' => false
-        );
-
         if (!isset($settings['accessToken'])) {
-            $authenticate = new Library\Authenticate($input, $output, $this->_logger);
-            $accessToken = $authenticate->authenticate($configOauth, $configHttpClient);
+            $authenticate = new Authenticate($input, $output, $this->_logger);
+            $accessToken = $authenticate->authenticate($app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
 
             $app->setDataStore('store', array(
                 'accessToken' => $accessToken
@@ -95,10 +79,10 @@ EOT
         } else {
             $this->_accessToken = $settings['accessToken'];
 
-            $this->_flickrClient = $flickrSimple = new Client('https://api.flickr.com/services/rest', $configOauth, $configHttpClient);
+            $this->_flickrClient = $flickrSimple = new Client('https://api.flickr.com/services/rest', $app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
             $flickrSimple->setAccessToken($settings['accessToken']);
 
-            $this->_flickrClientMulti = $flickrMulti = new ClientMulti('https://api.flickr.com/services/rest', $configOauth, $configHttpClient);
+            $this->_flickrClientMulti = $flickrMulti = new ClientMulti('https://api.flickr.com/services/rest', $app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
             $flickrMulti->setAccessToken($settings['accessToken']);
 
             $finder = $this->_scan($this->_input->getArgument(self::ARG_DIRECTORY));
@@ -106,7 +90,7 @@ EOT
 
             $this->_output->writeln("<info>Found {$filesFound} photos</info>");
 
-            $this->_flickrUploader = $flickrUploader = new Photo($settings['accessToken'], $configOauth, $configHttpClient);
+            $this->_flickrUploader = $flickrUploader = new Photo($settings['accessToken'], $app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
 
             $errors = array();
             $filesBatch = array();
@@ -196,7 +180,7 @@ EOT
                     $this->_photosetId = $this->_createSyncSet("Flickr-Sync", $photoId);
 
                     $_photosetNewlyCreated = true;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->_output->writeln("<error>Cannot create photoset: " . $e->getMessage() . "</error>");
                 }
             }
@@ -259,7 +243,7 @@ EOT
             return $result['photoset']['id'];
         } else {
             $this->_logger->error('!!! flickr.photosets.create', array('message' => $result['message'], 'code' => $result['code']));
-            throw new \Exception($result['message'], $result['code']);
+            throw new Exception($result['message'], $result['code']);
         }
     }
 
@@ -278,13 +262,13 @@ EOT
     }
 
     protected function _process(array $files)
-    {
+    {        
         $uploadedPhotoIds = array();
         $errors = array();
         $filesInfo = array();
         foreach ($files as $file) {
             $filePath = $file->getRealPath();
-            $filesInfo[$filePath]['hash'] = md5_file($filePath);
+            $filesInfo[$filePath]['hash'] = hash_file('md5', $filePath);
             $filesInfo[$filePath]['machine_tags'] = array(
                 "itscaro:app=flickr-sync",
                 "itscaro:photo_hash=" . $filesInfo[$filePath]['hash'],
@@ -333,7 +317,7 @@ EOT
                             if ($this->_output->isVerbose()) {
                                 $this->_output->writeln("<comment>Photo ID {$id}: {$filePath}</comment>");
                             }
-                        } catch (\Exception $e) {
+                        } catch (Exception $e) {
                             $this->_logger->error('!!! Upload failed', array('message' => $e->getMessage(), 'code' => $e->getCode()));
                         }
                     } else {
