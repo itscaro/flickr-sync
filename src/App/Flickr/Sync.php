@@ -86,7 +86,7 @@ EOT
             $finder = $this->_scan($directoryToProcess);
             foreach ($finder as $_file) {
                 /* @var $_file SplFileInfo */
-                $localPhotoHash[$_file->getRealPath()] = md5($_file->getRealPath());
+                $localPhotoHash[$_file->getRealPath()] = md5_file($_file->getRealPath());
             }
 
             $diffFlickrvsLocal = array_diff($photoHash, $localPhotoHash);
