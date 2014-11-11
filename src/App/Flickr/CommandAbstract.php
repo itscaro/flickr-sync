@@ -4,11 +4,11 @@ namespace Itscaro\App\Flickr;
 
 use Monolog\Logger;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\Input;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Shell\Command;
 use ZendOAuth\Token\Access;
 
 class CommandAbstract extends Command {
