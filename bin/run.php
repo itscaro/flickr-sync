@@ -3,8 +3,6 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Itscaro\App;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 define('ROOTDIR', dirname(__DIR__));
 define('BINDIR', ROOTDIR . '/bin');

@@ -4,13 +4,11 @@ namespace Itscaro\App\Flickr;
 
 use Itscaro\App\Application;
 use Itscaro\App\Flickr\Library\Authenticate;
-use Itscaro\Service\Flickr\Flickr;
+use Itscaro\App\Flickr\Library\Helper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 class Sync extends CommandAbstract {
 
@@ -51,7 +49,7 @@ EOT
         } else {
             $this->_accessToken = $settings['accessToken'];
 
-            $helper = new Library\Helper($this->_accessToken, $app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
+            $helper = new Helper($this->_accessToken, $app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
             $result = $helper->verifyPhotos($this->_input->getArgument(self::ARG_DIRECTORY));
 
             $diffFlickrvsLocal = $result['diffFlickrvsLocal'];

@@ -4,7 +4,6 @@ namespace Itscaro\App\Flickr;
 
 use Itscaro\App\Application;
 use Itscaro\App\Flickr\Library\Authenticate;
-use Itscaro\Service\Flickr\Flickr;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
