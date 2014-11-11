@@ -73,28 +73,31 @@ EOT
             $directoryToProcess = realpath($this->_input->getArgument(self::ARG_DIRECTORY));
 
             $flickr = new \Itscaro\Service\Flickr\Flickr($this->_accessToken, $configOauth, $configHttpClient);
-            
+
             $searchRegEx = '/itscaro\:photohash\=/';
             $tags = $flickr->tagsGetListUser($this->_accessToken->getParam('user_nsid'), $searchRegEx);
-        
+
             $photoHash = [];
-            foreach($tags as $_tag) {
+            foreach ($tags as $_tag) {
                 $photoHash[] = preg_replace($searchRegEx, '', $_tag);
             }
-            
+
             $localPhotoHash = [];
             $finder = $this->_scan($directoryToProcess);
-            foreach($finder as $_file) {
+            foreach ($finder as $_file) {
                 /* @var $_file SplFileInfo */
-                $localPhotoHash[$_file->getRealPath()]  = md5($_file->getRealPath());
+                $localPhotoHash[$_file->getRealPath()] = md5($_file->getRealPath());
             }
-            
-            $this->_output->writeln('Photos exists on Flickr but not locally');
-            $this->_output->writeln(var_export(array_diff($photoHash, $localPhotoHash), 1));
-            
-            $this->_output->writeln('Photos exists locally but not on Flickr');
-            $this->_output->writeln(var_export(array_diff($localPhotoHash, $photoHash), 1));
-            
+
+            $diffFlickrvsLocal = array_diff($photoHash, $localPhotoHash);
+            $this->_output->writeln('Photos exists on Flickr but not locally: ' . count($diffFlickrvsLocal));
+            $this->_logger->debug('Photos exists on Flickr but not locally', array('diff' => $diffFlickrvsLocal));
+            //$this->_output->writeln(var_export($diffFlickrvsLocal, 1));
+
+            $diffLocalvsFlickr = array_diff($localPhotoHash, $photoHash);
+            $this->_output->writeln('Photos exists locally but not on Flickr: ' . count($diffLocalvsFlickr));
+            $this->_logger->debug('Photos exists locally but not on Flickr', array('diff' => $diffLocalvsFlickr));
+            //$this->_output->writeln(var_export($diffLocalvsFlickr, 1));
 //            foreach ($photoHash as $value) {
 //                $photos = $flickr->photoSearch(array(
 //                    'user_id' => $this->_accessToken->getParam('user_nsid'),
