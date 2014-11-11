@@ -61,7 +61,7 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->_preExecute($input, $output);
+        $this->preExecute($input, $output);
 
         $startTime = microtime(1);
 
@@ -133,7 +133,7 @@ EOT
         }
 
         $this->_output->writeln('<info>Done in ' . round((microtime(1) - $startTime), 1) . ' seconds</info>');
-        $this->_postExecute($input, $output, array('startTime' => $startTime));
+        $this->postExecute($input, $output, array('startTime' => $startTime));
     }
 
     private function getSyncSetId($photosetName)
@@ -272,8 +272,8 @@ EOT
             $filesInfo[$filePath]['machine_tags'] = array(
                 "itscaro:app=flickr-sync",
                 "itscaro:photo_hash=" . $filesInfo[$filePath]['hash'],
-                "itscaro:directory_origin=" . $this->_sanitizeTag(dirname($filePath)),
-                "itscaro:directory=" . $this->_sanitizeTag(basename(dirname($filePath))),
+                "itscaro:directory_origin=" . $this->sanitizeTag(dirname($filePath)),
+                "itscaro:directory=" . $this->sanitizeTag(basename(dirname($filePath))),
             );
             $filesInfo[$filePath]['requestId'] = $this->_flickrClientMulti->addToQueue('GET', 'flickr.photos.search', array(
                 'user_id' => $this->_accessToken->getParam('user_nsid'),

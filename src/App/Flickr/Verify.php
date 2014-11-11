@@ -33,7 +33,7 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->_preExecute($input, $output);
+        $this->preExecute($input, $output);
 
         $startTime = microtime(1);
 
@@ -93,7 +93,7 @@ EOT
         }
 
         $this->_output->writeln('<info>Done in ' . round((microtime(1) - $startTime), 1) . ' seconds</info>');
-        $this->_postExecute($input, $output, array('startTime' => $startTime));
+        $this->postExecute($input, $output, array('startTime' => $startTime));
     }
 
     private function scan($dir)

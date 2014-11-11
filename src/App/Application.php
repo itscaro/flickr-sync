@@ -106,9 +106,9 @@ final class Application extends SymfonyApplication {
         if ($this->isPhar()) {
             $home = getenv('HOME');
             if (empty($home)) {
-                if (isset($_SERVER['HOMEDRIVE']) && isset($_SERVER['HOMEPATH'])) {
+                if (filter_input(INPUT_SERVER, 'HOMEDRIVE') && filter_input(INPUT_SERVER, 'HOMEPATH')) {
                     // home on windows
-                    $home = $_SERVER['HOMEDRIVE'] . $_SERVER['HOMEPATH'];
+                    $home = filter_input(INPUT_SERVER, 'HOMEDRIVE') . filter_input(INPUT_SERVER, 'HOMEPATH');
                 } else {
                     $home = '.';
                 }

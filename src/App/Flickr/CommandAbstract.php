@@ -1,24 +1,15 @@
 <?php
 
-namespace Itscaro\App\Flickr;
-
-use Itscaro\App\Application;
-use Itscaro\Service\Flickr\Client;
-use Itscaro\Service\Flickr\ClientMulti;
-use Itscaro\Service\Flickr\Photo;
-use Symfony\Component\Console\Command\Command;
+use Monolog\Logger;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\Input;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
-use Zend\Http\Client as ZendHttpClient;
-use ZendOAuth\Consumer;
+use Symfony\Component\Finder\Shell\Command;
 use ZendOAuth\Token\Access;
+
+namespace Itscaro\App\Flickr;
 
 class CommandAbstract extends Command {
 
@@ -42,7 +33,7 @@ class CommandAbstract extends Command {
 
     /**
      *
-     * @var \Monolog\Logger
+     * @var Logger
      */
     protected $_logger;
 
@@ -59,7 +50,7 @@ class CommandAbstract extends Command {
         'tiff'
     );
 
-    protected function _preExecute(InputInterface $input, OutputInterface $output)
+    protected function preExecute(InputInterface $input, OutputInterface $output)
     {
         $this->_input = $input;
         $this->_output = $output;
@@ -71,12 +62,12 @@ class CommandAbstract extends Command {
         $this->_logger->info('Application started');
     }
 
-    protected function _postExecute(InputInterface $input, OutputInterface $output, array $params = array())
+    protected function postExecute(InputInterface $input, OutputInterface $output, array $params = array())
     {
         $this->_logger->info('Done in ' . round((microtime(1) - $params['startTime']), 1) . ' seconds');
     }
 
-    protected function _sanitizeTag($string)
+    protected function sanitizeTag($string)
     {
         return preg_replace('/[^a-z0-9-_\/]/i', '_', $string);
     }

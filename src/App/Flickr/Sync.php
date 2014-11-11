@@ -33,7 +33,7 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->_preExecute($input, $output);
+        $this->preExecute($input, $output);
 
         $startTime = microtime(1);
 
@@ -78,21 +78,7 @@ EOT
         }
 
         $this->_output->writeln('<info>Done in ' . round((microtime(1) - $startTime), 1) . ' seconds</info>');
-        $this->_postExecute($input, $output, array('startTime' => $startTime));
-    }
-
-    private function scan($dir)
-    {
-        $dirRealPath = realpath($dir);
-
-        $this->_output->writeln("<info>Scanning {$dirRealPath}...</info>");
-
-        $finder = new Finder();
-        $finder->setAdapter('php')
-                ->in($dir)
-                ->name('/.*\.(' . implode('|', $this->_supportedExtensions) . ')$/i');
-
-        return $finder;
+        $this->postExecute($input, $output, array('startTime' => $startTime));
     }
 
 }
