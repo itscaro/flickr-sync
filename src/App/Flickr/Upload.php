@@ -51,19 +51,6 @@ class Upload extends CommandAbstract {
      */
     protected $_photosetId;
 
-    /**
-     * List of supported extensions
-     * @var array
-     */
-    private $_supportedExtensions = array(
-        'jpg',
-        'jpeg',
-        'png',
-        'gif',
-        'tif',
-        'tiff'
-    );
-
     protected function configure()
     {
         $this->setName("flickr:upload")
@@ -367,11 +354,6 @@ EOT
         $this->_addToSyncSet($uploadedPhotoIds);
 
         return $errors;
-    }
-
-    protected function _sanitizeTag($string)
-    {
-        return preg_replace('/[^a-z0-9-_\/]/i', '_', $string);
     }
 
 }

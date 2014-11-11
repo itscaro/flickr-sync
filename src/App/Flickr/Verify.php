@@ -20,7 +20,7 @@ use Zend\Http\Client as ZendHttpClient;
 use ZendOAuth\Consumer;
 use ZendOAuth\Token\Access;
 
-class Sync extends CommandAbstract {
+class Verify extends CommandAbstract {
 
     const ARG_DIRECTORY = 'directory';
     const OPT_DRYRUN = 'dry-run';
@@ -28,7 +28,7 @@ class Sync extends CommandAbstract {
 
     protected function configure()
     {
-        $this->setName("flickr:sync")
+        $this->setName("flickr:verify")
                 ->setDescription("")
                 ->setDefinition(array())
                 ->setHelp(<<<EOT
@@ -73,34 +73,52 @@ EOT
             $directoryToProcess = realpath($this->_input->getArgument(self::ARG_DIRECTORY));
 
             $flickr = new \Itscaro\Service\Flickr\Flickr($this->_accessToken, $configOauth, $configHttpClient);
-            
-            $searchRegEx = '/itscaro\:photohash\=/';
-            $tags = $flickr->tagsGetListUser($this->_accessToken->getParam('user_nsid'), $searchRegEx);
-        
-            $photoHash = [];
-            foreach($tags as $_tag) {
-                $photoHash[] = preg_replace($searchRegEx, '', $_tag);
-            }
-            
-            $localPhotoHash = [];
+                            
+            // Scan for all sub-dir
             $finder = $this->_scan($directoryToProcess);
-            foreach($finder as $_file) {
-                /* @var $_file SplFileInfo */
-                $localPhotoHash[$_file->getRealPath()]  = md5($_file->getRealPath());
+
+            $this->_logger->info(sprintf('Found %d sub-directories', $finder->count()));
+
+            // Try to find the asked directory only
+            if (count($finder) == 0) {
+                $finder = $this->_scan(dirname($directoryToProcess));
+                $finder->depth("< 1")
+                        ->name(basename($directoryToProcess));
+
+                if ($finder->count() > 0) {
+                    $this->_logger->info(sprintf('Found the directory "%s"', $directoryToProcess));
+                }
             }
-            
-            $this->_output->writeln('Photos exists on Flickr but not locally');
-            $this->_output->writeln(var_export(array_diff($photoHash, $localPhotoHash), 1));
-            
-            $this->_output->writeln('Photos exists locally but not on Flickr');
-            $this->_output->writeln(var_export(array_diff($localPhotoHash, $photoHash), 1));
-            
-//            foreach ($photoHash as $value) {
-//                $photos = $flickr->photoSearch(array(
-//                    'user_id' => $this->_accessToken->getParam('user_nsid'),
-//                    'machine_tags' => "itscaro:photo_hash=\"{$value}\""
-//                ));
-//            }
+
+            foreach ($finder as $directory) {
+                /* @var $directory SplFileInfo */
+
+                $_directory = $directory->getRealPath();
+
+                $this->_logger->debug(sprintf('Processing directory "%s"', $_directory));
+                
+                $params = array(
+                    'user_id' => $this->_accessToken->getParam('user_nsid'),
+                    "machine_tags" => implode(',', array(
+                        'itscaro:directory_origin=' . $this->_sanitizeTag($_directory)
+                    )),
+                    "machine_tag_mode" => "all",
+                    'per_page' => 1000
+                );
+                $photos = $flickr->photoSearchAll($params);
+
+                $this->_logger->debug('photoSearchAll', array('params' => $params));
+                $this->_logger->info(vsprintf("Found %d photos on Flickr for the directory '%s'", array(
+                    $photos->total,
+                    $_directory
+                                )
+                ));
+                $this->_output->writeln(vsprintf("Found %d photos on Flickr for the directory '%s'", array(
+                    $photos->total,
+                    $_directory
+                                )
+                ));
+            }
         }
 
         $this->_output->writeln('<info>Done in ' . round((microtime(1) - $startTime), 1) . ' seconds</info>');
@@ -116,7 +134,7 @@ EOT
         $finder = new Finder();
         $finder->setAdapter('php')
                 ->in($dir)
-                ->name('/.*\.(' . implode('|', $this->_supportedExtensions) . ')$/i');
+                ->directories();
 
         return $finder;
     }

@@ -46,6 +46,19 @@ class CommandAbstract extends Command {
      */
     protected $_logger;
 
+    /**
+     * List of supported extensions
+     * @var array
+     */
+    protected $_supportedExtensions = array(
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'tif',
+        'tiff'
+    );
+
     protected function _preExecute(InputInterface $input, OutputInterface $output)
     {
         $this->_input = $input;
@@ -61,6 +74,11 @@ class CommandAbstract extends Command {
     protected function _postExecute(InputInterface $input, OutputInterface $output, array $params = array())
     {
         $this->_logger->info('Done in ' . round((microtime(1) - $params['startTime']), 1) . ' seconds');
+    }
+
+    protected function _sanitizeTag($string)
+    {
+        return preg_replace('/[^a-z0-9-_\/]/i', '_', $string);
     }
 
 }
