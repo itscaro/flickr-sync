@@ -53,8 +53,6 @@ EOT
 
             $directoryToProcess = realpath($this->_input->getArgument(self::ARG_DIRECTORY));
 
-            $flickr = new Flickr($this->_accessToken, $app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
-                            
             // Scan for all sub-dir
             $finder = $this->_scan($directoryToProcess);
 
@@ -77,18 +75,10 @@ EOT
                 $_directory = $directory->getRealPath();
 
                 $this->_logger->debug(sprintf('Processing directory "%s"', $_directory));
-                
-                $params = array(
-                    'user_id' => $this->_accessToken->getParam('user_nsid'),
-                    "machine_tags" => implode(',', array(
-                        'itscaro:directory_origin=' . $this->_sanitizeTag($_directory)
-                    )),
-                    "machine_tag_mode" => "all",
-                    'per_page' => 1000
-                );
-                $photos = $flickr->photoSearchAll($params);
 
-                $this->_logger->debug('photoSearchAll', array('params' => $params));
+                $helper = new Library\Helper($this->_accessToken, $app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
+                $photos = $helper->verifyPhotosForDirectory($directory);
+
                 $this->_logger->info(vsprintf("Found %d photos on Flickr for the directory '%s'", array(
                     $photos->total,
                     $_directory

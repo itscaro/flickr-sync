@@ -33,6 +33,11 @@ class Helper {
         $this->_optionsHttpClient = $optionsHttpClient;
     }
 
+    /**
+     * Verify by hash
+     * @param type $workingDir
+     * @return type
+     */
     public function verifyPhotos($workingDir)
     {
         $directoryToProcess = realpath($workingDir);
@@ -72,6 +77,29 @@ class Helper {
             'diffFlickrvsLocal' => $diffFlickrvsLocal,
             'diffLocalvsFlickr' => $diffLocalvsFlickr
         );
+    }
+
+    /**
+     * Verify only the number of photos not by hash
+     * @param type $directory
+     * @return type
+     */
+    public function verifyPhotosForDirectory($directory)
+    {
+
+        $flickr = new Flickr($this->_accessToken, $this->_optionsOAuth, $this->_optionsHttpClient);
+
+        $params = array(
+            'user_id' => $this->_accessToken->getParam('user_nsid'),
+            "machine_tags" => implode(',', array(
+                'itscaro:directory_origin=' . $this->_sanitizeTag($directory)
+            )),
+            "machine_tag_mode" => "all",
+            'per_page' => 500
+        );
+        $photos = $flickr->photoSearchAll($params);
+        
+        return $photos;
     }
 
     protected function _scan($dir, $type)
