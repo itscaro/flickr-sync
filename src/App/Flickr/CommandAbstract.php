@@ -1,5 +1,7 @@
 <?php
 
+namespace Itscaro\App\Flickr;
+
 use Monolog\Logger;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\Input;
@@ -8,8 +10,6 @@ use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Shell\Command;
 use ZendOAuth\Token\Access;
-
-namespace Itscaro\App\Flickr;
 
 class CommandAbstract extends Command {
 
