@@ -59,7 +59,7 @@ final class Application extends SymfonyApplication {
             } elseif (isset($this->_config[$key])) {
                 return $this->_config[$key];
             } else {
-                throw new Exception("Config key '{$key}' does not exist");
+                throw new \Exception("Config key '{$key}' does not exist");
             }
         } else {
             return $this->_config;
@@ -101,7 +101,7 @@ final class Application extends SymfonyApplication {
      * @param string $storeFileName
      * @return string
      */
-    protected function _getDataStorePath($storeFileName)
+    protected function getDataStorePath($storeFileName)
     {
         if ($this->isPhar()) {
             $home = getenv('HOME');
@@ -124,7 +124,7 @@ final class Application extends SymfonyApplication {
 
     public function getDataStore($storeFileName)
     {
-        $filename = $this->_getDataStorePath($storeFileName);
+        $filename = $this->getDataStorePath($storeFileName);
 
         //Create your own folder in the cache directory
         $fs = new Filesystem();
@@ -145,7 +145,7 @@ final class Application extends SymfonyApplication {
 
     public function setDataStore($storeFileName, array $data)
     {
-        $filename = $this->_getDataStorePath($storeFileName);
+        $filename = $this->getDataStorePath($storeFileName);
 
         //Create your own folder in the cache directory
         $fs = new Filesystem();

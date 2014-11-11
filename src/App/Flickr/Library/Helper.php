@@ -55,7 +55,7 @@ class Helper {
         }
 
         $localPhotoHash = [];
-        $finder = $this->_scan($directoryToProcess, 'file');
+        $finder = $this->scan($directoryToProcess, 'file');
 
 //        $this->_logger->debug(sprintf('Found %d photos locally', $finder->count()));
 
@@ -102,7 +102,7 @@ class Helper {
         return $photos;
     }
 
-    protected function _scan($dir, $type)
+    protected function scan($dir, $type)
     {
         $dirRealPath = realpath($dir);
 
@@ -110,7 +110,7 @@ class Helper {
 
         $finder = new Finder();
         $finder->setAdapter('php')
-                ->in($dir);
+                ->in($dirRealPath);
 
         if ($type == 'directory') {
             $finder->directories();

@@ -2,20 +2,10 @@
 
 namespace Itscaro\App\Flickr\Library;
 
-use Itscaro\App\Application;
-use Itscaro\Service\Flickr\Client;
-use Itscaro\Service\Flickr\ClientMulti;
-use Itscaro\Service\Flickr\Photo;
-use Symfony\Component\Console\Command\Command;
+use Monolog\Logger;
 use Symfony\Component\Console\Input\Input;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\Output;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 use Zend\Http\Client as ZendHttpClient;
 use ZendOAuth\Consumer;
 use ZendOAuth\Token\Access;
@@ -36,11 +26,11 @@ class Authenticate {
 
     /**
      *
-     * @var \Monolog\Logger
+     * @var Logger
      */
     protected $_logger;
 
-    public function __construct(Input $input, Output $output, \Monolog\Logger $logger)
+    public function __construct(Input $input, Output $output, Logger $logger)
     {
         $this->_input = $input;
         $this->_output = $output;
@@ -51,7 +41,7 @@ class Authenticate {
      * 
      * @param array $configOauth
      * @param array $configHttpClient
-     * @return \ZendOAuth\Token\Access
+     * @return Access
      */
     public function authenticate(array $configOauth, array $configHttpClient)
     {
@@ -61,11 +51,7 @@ class Authenticate {
 
         // Oauth client
         $consumer = new Consumer($configOauth);
-
-        //var_dump($consumer->getRequestTokenUrl());
-
         $requestToken = $consumer->getRequestToken();
-        //var_dump($requestToken->getToken());
 
         $this->_output->writeln("<info>Please open this URL:</info>");
         $authorizationUrl = $consumer->getRedirectUrl(array(

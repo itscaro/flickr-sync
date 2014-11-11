@@ -1,4 +1,7 @@
 {
+    "name": "itscaro/flickr-sync",
+    "description": "A Flickr sync tool in PHP",
+    "license" : "proprietary",
     "config": {
         "autoloader-suffix": "IJENKO",
         "optimize-autoloader": true
