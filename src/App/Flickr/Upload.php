@@ -85,12 +85,12 @@ EOT
             $this->_flickrClientMulti = $flickrMulti = new ClientMulti('https://api.flickr.com/services/rest', $app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
             $flickrMulti->setAccessToken($settings['accessToken']);
 
-            $finder = $this->_scan($this->_input->getArgument(self::ARG_DIRECTORY));
+            $finder = $this->scan($this->_input->getArgument(self::ARG_DIRECTORY));
             $filesFound = count($finder);
 
             $this->_output->writeln("<info>Found {$filesFound} photos</info>");
 
-            $this->_flickrUploader = $flickrUploader = new Photo($settings['accessToken'], $app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
+            $this->_flickrUploader = new Photo($settings['accessToken'], $app->getConfig('flickr-oauth'), $app->getConfig('httpClient'));
 
             $errors = array();
             $filesBatch = array();
@@ -113,7 +113,7 @@ EOT
 
                     if (count($filesBatch) == 10 || $filesFound == $counter) {
 
-                        $errors += $this->_process($filesBatch);
+                        $errors += $this->process($filesBatch);
                         $filesBatch = array();
 
                         usleep(self::WAIT_BETWEEN_BATCH);
@@ -136,7 +136,7 @@ EOT
         $this->_postExecute($input, $output, array('startTime' => $startTime));
     }
 
-    protected function _getSyncSetId($photosetName)
+    private function getSyncSetId($photosetName)
     {
 //        $result = $flickrMulti->dispatch('GET', 'flickr.photosets.getList', array(
 //            'user_id' => $this->_accessToken->getParam('user_nsid')
@@ -164,20 +164,20 @@ EOT
         return null;
     }
 
-    protected function _addToSyncSet(array $photoIds)
+    private function addToSyncSet(array $photoIds)
     {
         foreach ($photoIds as $photoId => $photoInfo) {
             $_photosetNewlyCreated = false;
 
             // Try to get the photoset using to stock synced photos
             if ($this->_photosetId === null) {
-                $this->_photosetId = $this->_getSyncSetId("Flickr-Sync");
+                $this->_photosetId = $this->getSyncSetId("Flickr-Sync");
             }
 
             // Try to create the photoset using to stock synced photos
             if ($this->_photosetId === null) {
                 try {
-                    $this->_photosetId = $this->_createSyncSet("Flickr-Sync", $photoId);
+                    $this->_photosetId = $this->createSyncSet("Flickr-Sync", $photoId);
 
                     $_photosetNewlyCreated = true;
                 } catch (Exception $e) {
@@ -213,7 +213,7 @@ EOT
         }
     }
 
-    protected function _createSyncSet($photosetName, $photoId)
+    private function createSyncSet($photosetName, $photoId)
     {
         $this->_logger->info('>>> flickr.photosets.create');
         if ($this->_output->isVeryVerbose()) {
@@ -247,7 +247,7 @@ EOT
         }
     }
 
-    protected function _scan($dir)
+    private function scan($dir)
     {
         $dirRealPath = realpath($dir);
 
@@ -261,7 +261,7 @@ EOT
         return $finder;
     }
 
-    protected function _process(array $files)
+    private function process(array $files)
     {        
         $uploadedPhotoIds = array();
         $errors = array();
@@ -335,7 +335,7 @@ EOT
             }
         }
 
-        $this->_addToSyncSet($uploadedPhotoIds);
+        $this->addToSyncSet($uploadedPhotoIds);
 
         return $errors;
     }

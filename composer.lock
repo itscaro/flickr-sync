@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8bb5fbd59bb42eaddc9554c5aad66b0f",
+    "hash": "1b423d0dd52a83144e7e0bfcbdf10d03",
     "packages": [
         {
             "name": "itscaro/zf2-restful",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/itscaro/zf2-restful.git",
-                "reference": "5543edb20e781a48e6c463a74de395e2467be89f"
+                "reference": "367496ec6c19d29c4f1739ccbf1f66fa1b124ba4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itscaro/zf2-restful/zipball/5543edb20e781a48e6c463a74de395e2467be89f",
-                "reference": "5543edb20e781a48e6c463a74de395e2467be89f",
+                "url": "https://api.github.com/repos/itscaro/zf2-restful/zipball/367496ec6c19d29c4f1739ccbf1f66fa1b124ba4",
+                "reference": "367496ec6c19d29c4f1739ccbf1f66fa1b124ba4",
                 "shasum": ""
             },
             "require": {
@@ -45,7 +45,7 @@
                 "source": "https://github.com/itscaro/zf2-restful/tree/master",
                 "issues": "https://github.com/itscaro/zf2-restful/issues"
             },
-            "time": "2014-11-08 01:28:43"
+            "time": "2014-11-11 09:23:05"
         },
         {
             "name": "monolog/monolog",

@@ -54,13 +54,13 @@ EOT
             $directoryToProcess = realpath($this->_input->getArgument(self::ARG_DIRECTORY));
 
             // Scan for all sub-dir
-            $finder = $this->_scan($directoryToProcess);
+            $finder = $this->scan($directoryToProcess);
 
             $this->_logger->info(sprintf('Found %d sub-directories', $finder->count()));
 
             // Try to find the asked directory only
             if (count($finder) == 0) {
-                $finder = $this->_scan(dirname($directoryToProcess));
+                $finder = $this->scan(dirname($directoryToProcess));
                 $finder->depth("< 1")
                         ->name(basename($directoryToProcess));
 
@@ -96,7 +96,7 @@ EOT
         $this->_postExecute($input, $output, array('startTime' => $startTime));
     }
 
-    protected function _scan($dir)
+    private function scan($dir)
     {
         $dirRealPath = realpath($dir);
 

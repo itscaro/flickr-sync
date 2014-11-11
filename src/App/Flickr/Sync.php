@@ -81,7 +81,7 @@ EOT
         $this->_postExecute($input, $output, array('startTime' => $startTime));
     }
 
-    protected function _scan($dir)
+    private function scan($dir)
     {
         $dirRealPath = realpath($dir);
 
