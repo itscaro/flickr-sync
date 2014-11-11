@@ -21,5 +21,6 @@ $app->setVersion($config['app']['version']);
 $app->addCommands(array(
     new App\Flickr\Upload(),
     new App\Flickr\Sync(),
+    new App\Flickr\Verify(),
 ));
 $app->run();
