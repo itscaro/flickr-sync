@@ -1,0 +1,117 @@
+[2014-11-09 15:10:37] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-09 15:11:05] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-09 15:16:41] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-09 15:16:42] default.INFO: >>> flickr.photos.search [] {"memory_usage":"4.75 MB"}
+[2014-11-09 15:16:47] default.INFO: Uploading file {"file":"/vagrant/tmp/2014-02-10 22.51.00.jpg","fileInfo":{"hash":"d12712b134bc83ff4d220f57d352b054","machine_tags":["itscaro:app=flickr-sync","itscaro:photo_hash=d12712b134bc83ff4d220f57d352b054","itscaro:directory_origin=_vagrant_tmp","itscaro:directory=tmp"],"requestId":"545f774a11819"}} {"memory_usage":"4.75 MB"}
+[2014-11-09 15:17:04] default.INFO: Photo ID 15724004766: /vagrant/tmp/2014-02-10 22.51.00.jpg [] {"memory_usage":"10 MB"}
+[2014-11-09 15:17:04] default.INFO: Uploading file {"file":"/vagrant/tmp/2014-02-10 22.51.08.jpg","fileInfo":{"hash":"296f482a88449753077451f334ef46be","machine_tags":["itscaro:app=flickr-sync","itscaro:photo_hash=296f482a88449753077451f334ef46be","itscaro:directory_origin=_vagrant_tmp","itscaro:directory=tmp"],"requestId":"545f774a1a192"}} {"memory_usage":"10 MB"}
+[2014-11-09 15:17:18] default.INFO: Photo ID 15562548687: /vagrant/tmp/2014-02-10 22.51.08.jpg [] {"memory_usage":"13 MB"}
+[2014-11-09 15:17:19] default.INFO: >>> flickr.photosets.addPhoto [] {"memory_usage":"13 MB"}
+[2014-11-09 15:17:19] default.INFO: >>> flickr.photosets.addPhoto [] {"memory_usage":"13 MB"}
+[2014-11-09 15:17:20] default.INFO: Done in 38.7 [] {"memory_usage":"13 MB"}
+[2014-11-09 15:18:07] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-09 15:18:08] default.INFO: >>> flickr.photos.search [] {"memory_usage":"4.75 MB"}
+[2014-11-09 15:18:13] default.INFO: Uploading file {"file":"/vagrant/tmp 123132 test @ dsQSDZA/2014-02-10 22.51.00.jpg","fileInfo":{"hash":"d12712b134bc83ff4d220f57d352b054","machine_tags":["itscaro:app=flickr-sync","itscaro:photo_hash=d12712b134bc83ff4d220f57d352b054","itscaro:directory_origin=_vagrant_tmp_123132_test___dsQSDZA","itscaro:directory=tmp_123132_test___dsQSDZA"],"requestId":"545f77a0292b4"}} {"memory_usage":"4.75 MB"}
+[2014-11-09 15:18:33] default.INFO: Photo ID 15561839979: /vagrant/tmp 123132 test @ dsQSDZA/2014-02-10 22.51.00.jpg [] {"memory_usage":"10 MB"}
+[2014-11-09 15:18:33] default.INFO: Uploading file {"file":"/vagrant/tmp 123132 test @ dsQSDZA/2014-02-10 22.51.08.jpg","fileInfo":{"hash":"296f482a88449753077451f334ef46be","machine_tags":["itscaro:app=flickr-sync","itscaro:photo_hash=296f482a88449753077451f334ef46be","itscaro:directory_origin=_vagrant_tmp_123132_test___dsQSDZA","itscaro:directory=tmp_123132_test___dsQSDZA"],"requestId":"545f77a030fd8"}} {"memory_usage":"10 MB"}
+[2014-11-09 15:18:46] default.INFO: Photo ID 15562559457: /vagrant/tmp 123132 test @ dsQSDZA/2014-02-10 22.51.08.jpg [] {"memory_usage":"13 MB"}
+[2014-11-09 15:18:47] default.INFO: >>> flickr.photosets.addPhoto [] {"memory_usage":"13 MB"}
+[2014-11-09 15:18:48] default.INFO: >>> flickr.photosets.addPhoto [] {"memory_usage":"13 MB"}
+[2014-11-09 15:18:48] default.INFO: Done in 41.1 [] {"memory_usage":"13 MB"}
+[2014-11-11 00:40:17] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:40:24] default.INFO: Found 387 sub-directories [] {"memory_usage":"4 MB"}
+[2014-11-11 00:41:57] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:42:43] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:43:58] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:44:17] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:44:45] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:44:58] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:45:11] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:46:13] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:46:25] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:46:48] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:46:57] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:47:02] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:47:06] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:47:10] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:47:15] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:47:20] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:50:17] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:50:26] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:50:40] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:50:47] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:51:50] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:52:04] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:52:43] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:52:51] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:53:04] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:53:09] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:55:25] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:56:03] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:56:19] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:56:34] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:57:25] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:57:42] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 00:58:39] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 01:02:50] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 01:03:08] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 01:04:54] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 01:05:22] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 01:05:38] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 01:06:03] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 01:07:00] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 07:37:56] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 08:45:34] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 08:50:36] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 08:50:55] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 08:52:39] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 08:54:08] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 08:58:55] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 08:59:18] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 08:59:40] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 09:00:34] default.INFO: Application started [] {"memory_usage":"2.5 MB"}
+[2014-11-11 09:07:20] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:07:30] default.INFO: Done in 10.5 seconds [] {"memory_usage":"9.75 MB"}
+[2014-11-11 09:09:23] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:10:50] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:11:04] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:11:17] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:11:54] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:14:27] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:16:10] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:16:30] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:17:01] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:17:26] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:17:39] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:19:05] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:19:26] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:20:06] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:34:02] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:34:20] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:35:33] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:37:50] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:38:26] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:38:56] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:40:06] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:41:47] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:41:53] default.INFO: Done in 5.3 seconds [] {"memory_usage":"9.75 MB"}
+[2014-11-11 09:41:56] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:52:43] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:53:14] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:53:48] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:54:46] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:55:07] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:55:23] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:55:40] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:56:13] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 09:57:54] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 10:13:33] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 10:14:24] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 10:15:09] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 10:15:13] default.INFO: Done in 4.5 seconds [] {"memory_usage":"9.75 MB"}
+[2014-11-11 10:19:52] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 10:20:04] default.INFO: Done in 12.3 seconds [] {"memory_usage":"10 MB"}
+[2014-11-11 10:20:21] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 10:20:33] default.INFO: Done in 12.2 seconds [] {"memory_usage":"10 MB"}
+[2014-11-11 10:23:29] default.INFO: Application started [] {"memory_usage":"2.75 MB"}
+[2014-11-11 10:23:42] default.INFO: Done in 12.9 seconds [] {"memory_usage":"10 MB"}
