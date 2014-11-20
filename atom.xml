@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <title><![CDATA[Flickr Sync]]></title>
-    <link href="/atom.xml" rel="self"/>
-    <link href="/"/>
-    <updated>2014-11-20T00:58:42+01:00</updated>
-    <id>/</id>
+    <link href="http://itscaro.github.io/flickr-sync/atom.xml" rel="self"/>
+    <link href="http://itscaro.github.io/flickr-sync/"/>
+    <updated>2014-11-20T01:00:37+01:00</updated>
+    <id>http://itscaro.github.io/flickr-sync/</id>
         <generator uri="http://sculpin.io/">Sculpin</generator>
             <entry>
             <title type="html"><![CDATA[Syntax Highlighting]]></title>
-            <link href="/blog/2013/02/04/highlight"/>
+            <link href="http://itscaro.github.io/flickr-sync/blog/2013/02/04/highlight"/>
             <updated>2013-02-04T00:00:00+01:00</updated>
-            <id>/blog/2013/02/04/highlight</id>
+            <id>http://itscaro.github.io/flickr-sync/blog/2013/02/04/highlight</id>
             <content type="html"><![CDATA[<p>You're all programmers, right? And you're writing code snippets on your Sculpin
 powered blog? Yeah. So you want some highlighting with your static site generation?
 Here you go!</p>

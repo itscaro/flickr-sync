@@ -2,5 +2,5 @@
 # via `site.*`. So for example, {{ site.title }} can be used
 # in a template to get the contents of the `title` key.
 title: Flickr Sync
-subtitle: A tool to sync photo
-site.url: http://itscaro.github.io/flickr-sync
+subtitle: A tool to sync photos to Flickr
+url: http://itscaro.github.io/flickr-sync
